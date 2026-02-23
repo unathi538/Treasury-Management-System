@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CommVault — Wallet Transactions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Syne:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --red:#C0392B;--green:#1A7A45;--green-bright:#22A05A;
+      --white:#fff;--ivory:#F9F6F1;--parchment:#F2EDE5;
+      --ink:#120E0A;--ink-mid:#3D3530;--ink-soft:#8A7F78;
+      --line:rgba(18,14,10,.14);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Syne',sans-serif;background:var(--ivory);color:var(--ink)}
+    .wrap{max-width:980px;margin:0 auto;padding:28px}
+    .top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+    h1{font-family:'Cormorant Garamond',serif;margin:0;font-size:2.1rem}
+    .sub{color:var(--ink-soft);font-size:.9rem;margin-top:6px;max-width:680px}
+    .card{background:var(--white);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+    .cardHead{padding:18px 20px;border-bottom:1px solid rgba(18,14,10,.08);display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .input{flex:1;min-width:280px}
+    input{
+      width:100%;padding:14px 14px;border-radius:10px;border:1.5px solid rgba(18,14,10,.2);
+      background:var(--ivory);font-family:'IBM Plex Mono',monospace;font-size:.9rem;outline:none;
+    }
+    input:focus{border-color:var(--green-bright);box-shadow:0 0 0 3px rgba(34,160,90,.22);background:#fff}
+    button{
+      padding:13px 16px;border:0;border-radius:10px;cursor:pointer;
+      background:linear-gradient(135deg,var(--green),var(--green-bright));color:#fff;
+      font-weight:700;letter-spacing:.6px;text-transform:uppercase;font-size:.75rem;
+    }
+    .filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .pill{
+      border:1px solid rgba(18,14,10,.18);
+      background:var(--parchment);
+      color:var(--ink-mid);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:.7rem;
+      font-weight:800;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      cursor:pointer;
+      user-select:none;
+    }
+    .pill.active{border-color:rgba(34,160,90,.35);background:rgba(34,160,90,.12);color:var(--green)}
+    .rows{padding:8px 0}
+    .row{
+      display:flex;gap:12px;justify-content:space-between;align-items:flex-start;
+      padding:14px 20px;border-bottom:1px solid rgba(18,14,10,.08);
+    }
+    .row:last-child{border-bottom:0}
+    .left .title{font-weight:700}
+    .left .meta{color:var(--ink-soft);font-size:.78rem;margin-top:4px;font-family:'IBM Plex Mono',monospace}
+    .right{text-align:right}
+    .amt{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--green)}
+    .badge{display:inline-block;margin-top:6px;font-size:.62rem;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:rgba(34,160,90,.12);color:var(--green);border:1px solid rgba(34,160,90,.25)}
+    .badge.rejected{background:rgba(192,57,43,.10);color:var(--red);border-color:rgba(192,57,43,.25)}
+    .badge.pending{background:rgba(245,158,11,.10);color:#92400E;border-color:rgba(245,158,11,.25)}
+    .empty{padding:22px 20px;color:var(--ink-soft);font-style:italic}
+    a{color:var(--ink-mid);text-decoration:none}
+    a:hover{color:var(--red)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Wallet Withdrawals</h1>
+        <div class="sub">
+          Paste the wallet address you used in the withdrawal request form (it’s stored as <code>recipient_address</code>).
+          This will show your approved withdrawals (you can toggle to show all).
+        </div>
+      </div>
+      <div><a href="withdraw-request.html">← Back</a></div>
+    </div>
+
+    <div class="card">
+      <div class="cardHead">
+        <div class="input">
+          <input id="wallet" placeholder="addr1..." />
+        </div>
+
+        <div class="filters" aria-label="status filters">
+          <span class="pill active" data-status="approved">Approved</span>
+          <span class="pill" data-status="">All</span>
+          <span class="pill" data-status="pending">Pending</span>
+          <span class="pill" data-status="rejected">Rejected</span>
+        </div>
+
+        <button id="btnSearch" type="button">Search</button>
+      </div>
+
+      <div class="rows" id="results">
+        <div class="empty">Enter a wallet address and click Search.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const POOL_ID = 'main';
+    let currentStatusFilter = 'approved'; // default
+
+    function esc(s){
+      return String(s ?? '')
+        .replaceAll('&','&amp;').replaceAll('<','&lt;')
+        .replaceAll('>','&gt;').replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+    function fmtAda(n){
+      const num = Number(n || 0);
+      return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function badge(status){
+      const s = (status || '').toLowerCase();
+      const cls = s === 'approved' ? '' : (s === 'rejected' ? 'rejected' : 'pending');
+      return `<span class="badge ${cls}">${esc(s || 'pending')}</span>`;
+    }
+
+    function setActiveFilter(el){
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      currentStatusFilter = el.getAttribute('data-status') ?? '';
+    }
+
+    async function searchWallet() {
+      const wallet = document.getElementById('wallet').value.trim();
+      const results = document.getElementById('results');
+
+      if (!wallet) {
+        results.innerHTML = `<div class="empty">Please paste a wallet address.</div>`;
+        return;
+      }
+
+      results.innerHTML = `<div class="empty">Searching…</div>`;
+
+      const qs = new URLSearchParams({
+        pool_id: POOL_ID,
+        wallet
+      });
+      if (currentStatusFilter) qs.set('status', currentStatusFilter);
+
+      try {
+        const res = await fetch(`/backend/api/transactions/by_wallet.php?${qs.toString()}`, { cache: 'no-store' });
+        const text = await res.text();
+        let out;
+        try { out = JSON.parse(text); } catch { throw new Error('Bad JSON: ' + text.slice(0, 200)); }
+        if (!out.ok) throw new Error(out.error || 'Search failed');
+
+        const items = Array.isArray(out.items) ? out.items : [];
+        if (!items.length) {
+          results.innerHTML = `<div class="empty">No ${esc(currentStatusFilter || 'matching')} withdrawals found for this wallet.</div>`;
+          return;
+        }
+
+        results.innerHTML = items.map(x => {
+          const name = x.fullName || '—';
+          const amt  = fmtAda(x.amountAda ?? x.amount_ada ?? x.amount ?? 0);
+          const date = (x.createdAt || x.created_at || '').toString().replace('T',' ').slice(0,16) || '—';
+          const cat  = x.category || x.purpose_category || '—';
+          return `
+            <div class="row">
+              <div class="left">
+                <div class="title">${esc(name)} · ${esc(cat)}</div>
+                <div class="meta">#${esc(x.id)} · ${esc(date)}</div>
+              </div>
+              <div class="right">
+                <div class="amt">${amt} ADA</div>
+                ${badge(x.status)}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error(e);
+        results.innerHTML = `<div class="empty">Error: ${esc(e.message || 'Failed to load')}</div>`;
+      }
+    }
+
+    document.getElementById('btnSearch').addEventListener('click', searchWallet);
+    document.getElementById('wallet').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchWallet();
+    });
+
+    document.querySelectorAll('.pill').forEach(p => {
+      p.addEventListener('click', () => {
+        setActiveFilter(p);
+        // optional auto-search if a wallet is already entered
+        if (document.getElementById('wallet').value.trim()) searchWallet();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CommVault — Review Request</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red:#C0392B;--red-deep:#96281B;--red-muted:rgba(192,57,43,0.10);--red-glow:rgba(192,57,43,0.28);
+      --green:#1A7A45;--green-bright:#22A05A;--green-muted:rgba(26,122,69,0.10);--green-glow:rgba(26,122,69,0.28);
+      --white:#FFFFFF;--ivory:#F9F6F1;--parchment:#F2EDE5;
+      --ink:#120E0A;--ink-mid:#3D3530;--ink-soft:#8A7F78;
+      --line:rgba(18,14,10,0.08);--line-strong:rgba(18,14,10,0.14);
+      --sidebar-w:240px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;font-family:'Syne',sans-serif;background:var(--ivory);color:var(--ink);overflow-x:hidden;}
+
+    .scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .scene::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(-45deg,transparent,transparent 28px,rgba(18,14,10,0.018) 28px,rgba(18,14,10,0.018) 29px);}
+    .wash{position:absolute;border-radius:50%;filter:blur(130px);}
+    .wash-1{width:600px;height:600px;background:radial-gradient(circle,var(--red) 0%,transparent 70%);top:-200px;right:-100px;opacity:.07;animation:breathe 18s ease-in-out infinite alternate;}
+    .wash-2{width:500px;height:500px;background:radial-gradient(circle,var(--green) 0%,transparent 70%);bottom:-100px;left:-100px;opacity:.07;animation:breathe 22s ease-in-out infinite alternate-reverse;}
+    @keyframes breathe{from{transform:scale(1);}to{transform:scale(1.12) translate(20px,12px);}}
+
+    .app{position:relative;z-index:1;display:flex;min-height:100vh;}
+
+    /* SIDEBAR */
+    .sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;opacity:0;animation:riseIn .6s .05s ease forwards;}
+    .sidebar-brand{padding:28px 24px 24px;border-bottom:1px solid rgba(255,255,255,.08);}
+    .brand-mark{display:flex;align-items:center;gap:12px;text-decoration:none;}
+    .brand-seal{width:40px;height:40px;background:rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+    .brand-seal::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);}
+    .seal-ring{width:16px;height:16px;border:2px solid rgba(255,255,255,.85);border-radius:50%;position:relative;z-index:1;}
+    .seal-ring::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;background:var(--red);border-radius:50%;}
+    .brand-text{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--white);line-height:1;}
+    .brand-text em{font-style:normal;color:var(--red);}
+    .brand-sub{font-size:.58rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:3px;}
+    .sidebar-nav{flex:1;padding:20px 12px;}
+    .nav-section-label{font-size:.55rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.25);padding:10px 12px 8px;}
+    .nav-item{display:flex;align-items:center;gap:11px;padding:11px 14px;border-radius:8px;cursor:pointer;transition:background .18s,color .18s;margin-bottom:2px;text-decoration:none;color:rgba(255,255,255,.55);font-size:.82rem;font-weight:600;letter-spacing:.3px;}
+    .nav-item:hover{background:rgba(255,255,255,.07);color:var(--white);}
+    .nav-item.active{background:rgba(192,57,43,.2);color:var(--white);}
+    .nav-item.active .nav-icon{color:var(--red);}
+    .nav-icon{flex-shrink:0;color:rgba(255,255,255,.35);}
+    .sidebar-footer{padding:16px 12px 24px;border-top:1px solid rgba(255,255,255,.08);}
+    .sidebar-back{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:8px;color:rgba(255,255,255,.45);font-size:.78rem;font-weight:600;text-decoration:none;transition:all .18s;}
+    .sidebar-back:hover{background:rgba(255,255,255,.06);color:var(--white);}
+
+    /* MAIN */
+    .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+    /* TOPBAR */
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:22px 36px;border-bottom:1px solid var(--line-strong);background:rgba(249,246,241,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:50;opacity:0;animation:riseIn .6s .1s ease forwards;}
+    .topbar-left{display:flex;align-items:center;gap:14px;}
+    .btn-back{display:inline-flex;align-items:center;gap:7px;background:transparent;border:1.5px solid var(--line-strong);color:var(--ink-mid);font-family:'Syne',sans-serif;font-size:.75rem;font-weight:600;letter-spacing:.5px;border-radius:6px;padding:9px 14px;cursor:pointer;text-decoration:none;transition:all .18s;}
+    .btn-back:hover{border-color:var(--red);color:var(--red);}
+    .topbar-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:var(--ink);}
+    .topbar-sub{font-size:.68rem;color:var(--ink-soft);margin-top:2px;}
+    .btn-connect{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--white);font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border:none;border-radius:6px;padding:11px 18px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+    .btn-connect::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--red-deep),var(--red));opacity:0;transition:opacity .25s;}
+    .btn-connect:hover::before{opacity:1;}
+    .btn-connect:hover{transform:translateY(-1px);box-shadow:0 6px 22px var(--red-glow);}
+    .btn-connect>*{position:relative;z-index:1;}
+    .conn-pip{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:sonar 2.4s infinite;}
+    @keyframes sonar{0%{box-shadow:0 0 0 0 rgba(74,222,128,.7);}70%{box-shadow:0 0 0 7px rgba(74,222,128,0);}100%{box-shadow:0 0 0 0 rgba(74,222,128,0);}}
+
+    /* CONTENT */
+    .content{padding:40px 36px 80px;max-width:900px;}
+
+    /* STATUS BANNER */
+    .status-banner{display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:10px;margin-bottom:32px;font-size:.82rem;font-weight:600;opacity:0;animation:riseIn .5s .15s ease forwards;}
+    .status-banner.pending{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);color:#92400E;}
+    .status-banner.approved{background:var(--green-muted);border:1px solid rgba(26,122,69,.2);color:var(--green);}
+    .status-banner.rejected{background:var(--red-muted);border:1px solid rgba(192,57,43,.2);color:var(--red);}
+    .status-banner-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+    .pending .status-banner-dot{background:#F59E0B;}
+    .approved .status-banner-dot{background:var(--green-bright);}
+    .rejected .status-banner-dot{background:var(--red);}
+
+    /* DETAIL CARD */
+    .detail-card{background:var(--white);border:1px solid var(--line-strong);border-radius:18px;overflow:hidden;opacity:0;animation:riseIn .6s .2s ease forwards;position:relative;}
+    .detail-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red-deep),var(--red));}
+    .detail-card-head{padding:30px 36px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:18px;}
+    .detail-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--ink-mid),var(--ink));display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:var(--white);flex-shrink:0;font-family:'Syne',sans-serif;}
+    .detail-name{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--ink);}
+    .detail-id{font-size:.68rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;font-family:'IBM Plex Mono',monospace;}
+
+    .detail-body{padding:32px 36px;}
+    .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+    .detail-field{padding:16px 0;border-bottom:1px solid var(--line);}
+    .detail-field:nth-child(odd){padding-right:32px;border-right:1px solid var(--line);}
+    .detail-field:nth-child(even){padding-left:32px;}
+    .detail-field.full{grid-column:1/-1;padding-right:0;border-right:none;}
+    .detail-field-label{font-size:.6rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:7px;}
+    .detail-field-value{font-size:.9rem;font-weight:500;color:var(--ink);line-height:1.5;}
+    .detail-field-value.mono{font-family:'IBM Plex Mono',monospace;font-size:.82rem;word-break:break-all;}
+    .detail-field-value.amount{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--ink);}
+    .detail-field-value.justification{font-size:.85rem;color:var(--ink-mid);line-height:1.65;}
+
+    /* ACTION BUTTONS */
+    .action-bar{padding:28px 36px;border-top:1px solid var(--line);display:flex;align-items:center;gap:16px;background:var(--ivory);}
+    .action-bar-label{font-size:.72rem;color:var(--ink-soft);margin-right:4px;}
+    .btn-approve{display:inline-flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--green),var(--green-bright));color:var(--white);font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border:none;border-radius:8px;padding:14px 26px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 16px var(--green-glow);}
+    .btn-approve::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);opacity:0;transition:opacity .2s;}
+    .btn-approve:hover::after{opacity:1;}
+    .btn-approve:hover{transform:translateY(-2px);box-shadow:0 8px 26px var(--green-glow);}
+    .btn-approve:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+    .btn-reject{display:inline-flex;align-items:center;gap:9px;background:transparent;color:var(--red);font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border:1.5px solid rgba(192,57,43,.35);border-radius:8px;padding:13px 24px;cursor:pointer;transition:all .2s;}
+    .btn-reject:hover{background:var(--red);color:var(--white);border-color:var(--red);}
+    .btn-reject:disabled{opacity:.45;cursor:not-allowed;}
+
+    /* CONFIRM MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(18,14,10,.55);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px);}
+    .modal-overlay.open{opacity:1;pointer-events:all;}
+    .modal{background:var(--white);border-radius:18px;padding:36px;width:100%;max-width:420px;transform:translateY(20px);transition:transform .25s;box-shadow:0 32px 80px rgba(18,14,10,.18);}
+    .modal-overlay.open .modal{transform:translateY(0);}
+    .modal-icon{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+    .modal-icon-approve{background:var(--green-muted);color:var(--green);}
+    .modal-icon-reject{background:var(--red-muted);color:var(--red);}
+    .modal-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;text-align:center;color:var(--ink);margin-bottom:10px;}
+    .modal-body{font-size:.82rem;color:var(--ink-soft);text-align:center;line-height:1.6;margin-bottom:28px;}
+    .modal-body strong{color:var(--ink);font-weight:600;}
+    .modal-actions{display:flex;gap:12px;}
+    .modal-btn-confirm{flex:1;border:none;border-radius:8px;padding:13px 18px;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+    .modal-btn-confirm.approve{background:linear-gradient(135deg,var(--green),var(--green-bright));color:var(--white);box-shadow:0 4px 16px var(--green-glow);}
+    .modal-btn-confirm.approve:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--green-glow);}
+    .modal-btn-confirm.reject{background:linear-gradient(135deg,var(--red-deep),var(--red));color:var(--white);box-shadow:0 4px 16px var(--red-glow);}
+    .modal-btn-confirm.reject:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--red-glow);}
+    .modal-btn-cancel{flex:1;background:transparent;border:1.5px solid var(--line-strong);border-radius:8px;padding:12px 18px;font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-soft);cursor:pointer;transition:all .2s;}
+    .modal-btn-cancel:hover{border-color:var(--ink);color:var(--ink);}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:32px;right:32px;z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 20px;border-radius:10px;font-size:.82rem;font-weight:600;color:var(--white);transform:translateY(20px);opacity:0;transition:all .3s;pointer-events:none;min-width:280px;}
+    .toast.show{transform:translateY(0);opacity:1;}
+    .toast.success{background:linear-gradient(135deg,var(--green),var(--green-bright));}
+    .toast.error{background:linear-gradient(135deg,var(--red-deep),var(--red));}
+
+    @keyframes riseIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+    #notFound{padding:60px 36px;text-align:center;opacity:0;animation:riseIn .6s .2s ease forwards;}
+    #notFound h2{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--ink);margin-bottom:12px;}
+    #notFound p{font-size:.88rem;color:var(--ink-soft);margin-bottom:24px;}
+  </style>
+</head>
+<body>
+
+<div class="scene">
+  <div class="wash wash-1"></div>
+  <div class="wash wash-2"></div>
+</div>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <a href="index.html" class="brand-mark">
+        <div class="brand-seal"><div class="seal-ring"></div></div>
+        <div>
+          <div class="brand-text">Comm<em>Vault</em></div>
+          <div class="brand-sub">Treasurer Office</div>
+        </div>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Management</div>
+      <a href="treasurer.html" class="nav-item active">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+        Withdrawals
+      </a>
+      <a href="audit-logs.html" class="nav-item">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+        Audit Logs
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="index.html" class="sidebar-back">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to Main Site
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="treasurer.html" class="btn-back">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Back
+        </a>
+        <div>
+          <div class="topbar-title">Review Request</div>
+          <div class="topbar-sub" id="topbarSub">Loading request details…</div>
+        </div>
+      </div>
+      <button class="btn-connect" onclick="connectWallet()">
+        <div class="conn-pip"></div>
+        <span>Connect Wallet</span>
+      </button>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- NOT FOUND (hidden by default) -->
+      <div id="notFound" style="display:none;">
+        <h2>Request Not Found</h2>
+        <p>This withdrawal request could not be loaded. It may have been removed or the link is invalid.</p>
+        <a href="treasurer.html" class="btn-back" style="display:inline-flex;">← Back to Dashboard</a>
+      </div>
+
+      <!-- MAIN DETAIL (shown when data loads) -->
+      <div id="detailContainer" style="display:none;">
+
+        <!-- STATUS BANNER -->
+        <div class="status-banner pending" id="statusBanner">
+          <div class="status-banner-dot"></div>
+          <span id="statusBannerText">Pending review</span>
+        </div>
+
+        <!-- DETAIL CARD -->
+        <div class="detail-card">
+          <div class="detail-card-head">
+            <div class="detail-avatar" id="detailAvatar">—</div>
+            <div>
+              <div class="detail-name" id="detailName">—</div>
+              <div class="detail-id" id="detailId">—</div>
+            </div>
+          </div>
+
+          <div class="detail-body">
+            <div class="detail-grid">
+              <div class="detail-field">
+                <div class="detail-field-label">Amount Requested</div>
+                <div class="detail-field-value amount" id="detailAmount">—</div>
+              </div>
+              <div class="detail-field">
+                <div class="detail-field-label">Purpose Category</div>
+                <div class="detail-field-value" id="detailCategory">—</div>
+              </div>
+              <div class="detail-field">
+                <div class="detail-field-label">Date Submitted</div>
+                <div class="detail-field-value" id="detailDate">—</div>
+              </div>
+              <div class="detail-field">
+                <div class="detail-field-label">Current Status</div>
+                <div class="detail-field-value" id="detailStatus">—</div>
+              </div>
+              <div class="detail-field full">
+                <div class="detail-field-label">Recipient Address</div>
+                <div class="detail-field-value mono" id="detailAddress">—</div>
+              </div>
+              <div class="detail-field full" style="border-bottom:none;">
+                <div class="detail-field-label">Detailed Justification</div>
+                <div class="detail-field-value justification" id="detailJustification">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTION BAR -->
+          <div class="action-bar" id="actionBar">
+            <span class="action-bar-label">Decision:</span>
+            <button class="btn-approve" id="btnApprove" onclick="confirmAction('approve')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve Request
+            </button>
+            <button class="btn-reject" id="btnReject" onclick="confirmAction('reject')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Reject Request
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /detailContainer -->
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRMATION MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-icon" id="modalIcon"></div>
+    <div class="modal-title" id="modalTitle">Confirm Action</div>
+    <div class="modal-body" id="modalBody">Are you sure?</div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-btn-confirm" id="modalConfirmBtn" onclick="executeAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  let currentRequest = null;
+  let pendingAction  = null;
+
+  // ---- helpers ----
+  function avatarInitials(name) {
+    return (name || '').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
+  }
+  function statusClass(s) {
+    return { pending: 'pending', approved: 'approved', rejected: 'rejected' }[s] || 'pending';
+  }
+  function statusLabel(s) {
+    return { pending: 'Awaiting Review', approved: 'Approved', rejected: 'Rejected' }[s] || s;
+  }
+
+  // ✅ FIX: support both "amount" and "amount_ada"
+  function getAmountAda(req) {
+    const v = req?.amount ?? req?.amount_ada ?? req?.amountAda ?? 0;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  // ✅ FIX: support both naming styles coming from backend
+  function getFullName(req) {
+    return req?.fullName ?? req?.full_name ?? '—';
+  }
+  function getCategory(req) {
+    return req?.purpose ?? req?.category ?? req?.purpose_category ?? '—';
+  }
+  function getRecipient(req) {
+    return req?.recipientAddress ?? req?.recipient_address ?? '—';
+  }
+  function getJustification(req) {
+    return req?.justification ?? '—';
+  }
+  function getDate(req) {
+    return req?.date ?? req?.created_at ?? '—';
+  }
+  function getPoolId(req) {
+    return req?.pool_id ?? req?.poolId ?? 'main';
+  }
+
+  function loadRequest() {
+    let req = null;
+    try { req = JSON.parse(sessionStorage.getItem('cvReviewRequest')); } catch(e){}
+
+    if (!req) {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get('id');
+      if (id && window.getRequestById) req = window.getRequestById(id);
+    }
+
+    if (!req) {
+      document.getElementById('notFound').style.display = 'block';
+      return;
+    }
+
+    currentRequest = req;
+    document.getElementById('detailContainer').style.display = 'block';
+
+    const fullName = getFullName(req);
+    const amountAda = getAmountAda(req);
+    const sc = statusClass(req.status);
+
+    document.getElementById('topbarSub').textContent = `Request ID: ${req.id || '—'}`;
+
+    const banner = document.getElementById('statusBanner');
+    banner.className = `status-banner ${sc}`;
+    document.getElementById('statusBannerText').textContent = statusLabel(req.status);
+
+    document.getElementById('detailAvatar').textContent = avatarInitials(fullName);
+    document.getElementById('detailName').textContent = fullName;
+    document.getElementById('detailId').textContent = `Request ID · ${req.id || '—'}`;
+
+    // ✅ Amount now always displays
+    document.getElementById('detailAmount').textContent =
+      amountAda.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) + ' ADA';
+
+    document.getElementById('detailCategory').textContent = getCategory(req);
+    document.getElementById('detailDate').textContent = getDate(req);
+
+    document.getElementById('detailStatus').innerHTML =
+      `<span class="status-badge status-${sc}">${statusLabel(req.status)}</span>`;
+
+    document.getElementById('detailAddress').textContent = getRecipient(req);
+    document.getElementById('detailJustification').textContent = getJustification(req);
+
+    if (req.status !== 'pending') {
+      document.getElementById('actionBar').style.display = 'none';
+    }
+  }
+
+  // ---- modal ----
+  function confirmAction(action) {
+    pendingAction = action;
+    const isApprove = action === 'approve';
+
+    const fullName = getFullName(currentRequest);
+    const amountAda = getAmountAda(currentRequest);
+
+    const icon = document.getElementById('modalIcon');
+    icon.className = `modal-icon modal-icon-${action}`;
+    icon.innerHTML = isApprove
+      ? `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`
+      : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+
+    document.getElementById('modalTitle').textContent = isApprove ? 'Approve Request' : 'Reject Request';
+
+    document.getElementById('modalBody').innerHTML = isApprove
+      ? `You are about to <strong>approve</strong> a withdrawal of <strong>${amountAda.toLocaleString()} ADA</strong> for <strong>${fullName}</strong>.`
+      : `You are about to <strong>reject</strong> this withdrawal request from <strong>${fullName}</strong>.`;
+
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    confirmBtn.className = `modal-btn-confirm ${action}`;
+    confirmBtn.textContent = isApprove ? 'Confirm Approval' : 'Confirm Rejection';
+
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+
+  // ✅ FIXED: allow closing modal without wiping pendingAction
+  function closeModal(keepAction = false) {
+    document.getElementById('modalOverlay').classList.remove('open');
+    if (!keepAction) pendingAction = null;
+  }
+
+  // ✅ FIXED: capture action BEFORE closeModal clears it
+  async function executeAction() {
+    if (!pendingAction || !currentRequest) return;
+
+    const action = pendingAction;   // <-- capture now
+    closeModal(true);               // <-- close modal but keep action for this submit
+
+    document.getElementById('btnApprove').disabled = true;
+    document.getElementById('btnReject').disabled  = true;
+
+    const status = (action === 'approve') ? 'approved' : 'rejected';
+
+    try {
+      const res = await fetch('/backend/api/transactions/update_status.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: currentRequest.id,
+          pool_id: getPoolId(currentRequest),
+          status
+        })
+      });
+
+      const text = await res.text();
+      let out;
+      try { out = JSON.parse(text); }
+      catch { throw new Error('Bad JSON: ' + text.slice(0, 200)); }
+
+      if (!out.ok) throw new Error(out.error || 'Update failed');
+
+      // update UI
+      currentRequest.status = status;
+
+      const sc = statusClass(status);
+      const banner = document.getElementById('statusBanner');
+      banner.className = `status-banner ${sc}`;
+      document.getElementById('statusBannerText').textContent = statusLabel(status);
+      document.getElementById('detailStatus').innerHTML =
+        `<span class="status-badge status-${sc}">${statusLabel(status)}</span>`;
+
+      document.getElementById('actionBar').style.display = 'none';
+
+      showToast(
+        status === 'approved' ? '✓ Request approved.' : '✗ Request rejected.',
+        status === 'approved' ? 'success' : 'error'
+      );
+
+      pendingAction = null; // <-- clear after success
+      setTimeout(() => { window.location.href = 'treasurer.html'; }, 1500);
+
+    } catch (err) {
+      showToast('Error: ' + (err.message || 'Update failed'), 'error');
+      document.getElementById('btnApprove').disabled = false;
+      document.getElementById('btnReject').disabled  = false;
+      pendingAction = null; // <-- clear after failure too
+    }
+  }
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => { t.classList.remove('show'); }, 4000);
+  }
+
+  document.getElementById('modalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal(); // normal close clears pendingAction
+  });
+
+  document.addEventListener('DOMContentLoaded', loadRequest);
+</script>
+<script type="module" src="app.js"></script>
+
+<!-- Hidden activity log — functional for wallet/app.js, not visible in UI -->
+<style>
+  .log-hidden-wrap{position:fixed;bottom:0;left:var(--sidebar-w);right:0;z-index:9000;pointer-events:none;opacity:0;visibility:hidden;}
+</style>
+<div class="log-hidden-wrap">
+  <pre id="log"></pre>
+</div>
+</body>
+</html>

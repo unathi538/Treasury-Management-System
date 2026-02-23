@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CommVault — Community Savings Pool on Cardano</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════ */
+:root{
+  --red:       #C0392B;
+  --red-deep:  #96281B;
+  --red-lt:    #E74C3C;
+  --red-muted: rgba(192,57,43,.13);
+  --red-glow:  rgba(192,57,43,.32);
+  --green:     #1A7A45;
+  --green-lt:  #22A05A;
+  --green-muted:rgba(26,122,69,.13);
+  --green-glow: rgba(26,122,69,.32);
+  --white:     #FFFFFF;
+  --off-white: #F5F0EB;
+  --dark:      #0D0B09;
+  --dark-2:    #141210;
+  --dark-3:    #1C1916;
+  --dark-4:    #252220;
+  --muted:     #8A7F78;
+  --line:      rgba(255,255,255,.07);
+  --line-s:    rgba(255,255,255,.13);
+}
+
+/* ═══════════════════════════════════════
+   RESET
+═══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--dark);
+  color:var(--white);
+  overflow-x:hidden;
+  cursor:default;
+}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+
+/* ═══════════════════════════════════════
+   UTILITY
+═══════════════════════════════════════ */
+.container{max-width:1120px;margin:0 auto;padding:0 28px}
+.section{padding:100px 0}
+.tag{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:.68rem;font-weight:700;letter-spacing:2.5px;
+  text-transform:uppercase;
+  background:var(--red-muted);border:1px solid rgba(192,57,43,.25);
+  color:var(--red-lt);border-radius:4px;padding:5px 12px;
+  margin-bottom:18px;
+}
+.tag-green{background:var(--green-muted);border-color:rgba(26,122,69,.25);color:var(--green-lt);}
+.section-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2rem,4vw,3rem);
+  font-weight:700;line-height:1.15;
+  margin-bottom:16px;
+}
+.section-sub{font-size:1rem;color:var(--muted);line-height:1.7;max-width:560px;}
+
+/* reveal on scroll */
+.reveal{
+  opacity:0;transform:translateY(28px);
+  transition:opacity .7s ease,transform .7s ease;
+}
+.reveal.visible{opacity:1;transform:none;}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.reveal-delay-4{transition-delay:.4s}
+
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0 28px;
+  background:rgba(13,11,9,.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--line);
+  transition:box-shadow .3s;
+}
+nav.scrolled{box-shadow:0 4px 32px rgba(0,0,0,.4)}
+.nav-inner{
+  max-width:1120px;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  height:68px;
+}
+.nav-logo{display:flex;align-items:center;gap:12px;}
+.nav-seal{
+  width:38px;height:38px;background:var(--red);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 18px var(--red-glow);position:relative;overflow:hidden;
+}
+.nav-seal::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18),transparent);border-radius:inherit;}
+.nav-seal-ring{width:16px;height:16px;border:2px solid #fff;border-radius:50%;position:relative;z-index:1;}
+.nav-seal-ring::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:5px;height:5px;background:var(--white);border-radius:50%;}
+.nav-wordmark{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;}
+.nav-wordmark em{font-style:normal;color:var(--red);}
+.nav-links{display:flex;align-items:center;gap:32px;}
+.nav-links a{font-size:.82rem;font-weight:600;color:var(--muted);letter-spacing:.5px;transition:color .2s;}
+.nav-links a:hover{color:var(--white);}
+.nav-cta{
+  display:flex;align-items:center;gap:8px;
+  background:var(--red);color:var(--white);
+  font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;
+  letter-spacing:1px;text-transform:uppercase;
+  border:none;border-radius:6px;padding:10px 20px;cursor:pointer;
+  transition:background .2s,box-shadow .2s,transform .2s;
+}
+.nav-cta:hover{background:var(--red-deep);box-shadow:0 6px 22px var(--red-glow);transform:translateY(-1px);}
+
+/* ═══════════════════════════════════════
+   HERO
+═══════════════════════════════════════ */
+.hero{
+  min-height:100vh;
+  display:flex;align-items:center;
+  padding-top:68px;
+  position:relative;overflow:hidden;
+}
+
+/* animated bg mesh */
+.hero-bg{position:absolute;inset:0;z-index:0;pointer-events:none;}
+.hero-bg::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 700px 600px at 10% 50%,rgba(192,57,43,.18) 0%,transparent 70%),
+    radial-gradient(ellipse 500px 500px at 90% 20%,rgba(26,122,69,.14) 0%,transparent 70%),
+    radial-gradient(ellipse 400px 400px at 70% 80%,rgba(192,57,43,.10) 0%,transparent 70%);
+}
+/* diagonal lines texture */
+.hero-bg::after{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(-45deg,transparent,transparent 34px,rgba(255,255,255,.018) 34px,rgba(255,255,255,.018) 35px);
+}
+/* floating orbs */
+.orb{
+  position:absolute;border-radius:50%;
+  filter:blur(80px);pointer-events:none;
+}
+.orb-1{width:500px;height:500px;background:var(--red);opacity:.09;top:-100px;left:-150px;animation:drift 20s ease-in-out infinite alternate;}
+.orb-2{width:400px;height:400px;background:var(--green);opacity:.09;bottom:-80px;right:-100px;animation:drift 26s ease-in-out infinite alternate-reverse;}
+.orb-3{width:250px;height:250px;background:var(--red-deep);opacity:.07;top:40%;right:20%;animation:drift 15s ease-in-out infinite alternate;animation-delay:-8s;}
+@keyframes drift{from{transform:translate(0,0) scale(1);}to{transform:translate(40px,30px) scale(1.1);}}
+
+.hero-inner{
+  position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:60px;align-items:center;
+  width:100%;
+}
+.hero-kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;
+  color:var(--red-lt);margin-bottom:20px;
+}
+.hero-kicker span{width:28px;height:1.5px;background:var(--red);}
+.hero-h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(2.8rem,5.5vw,4.2rem);
+  font-weight:700;line-height:1.08;
+  margin-bottom:22px;
+  animation:heroIn .9s .1s ease both;
+}
+.hero-h1 .accent{color:var(--red);}
+.hero-h1 .accent-g{color:var(--green-lt);}
+.hero-p{
+  font-size:1.05rem;color:var(--muted);line-height:1.75;
+  max-width:480px;margin-bottom:36px;
+  animation:heroIn .9s .2s ease both;
+}
+.hero-actions{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  animation:heroIn .9s .3s ease both;
+}
+@keyframes heroIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+
+.btn-primary{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--red);color:var(--white);
+  font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;
+  border:none;border-radius:7px;padding:15px 28px;cursor:pointer;
+  transition:background .2s,box-shadow .2s,transform .2s;
+  position:relative;overflow:hidden;
+}
+.btn-primary::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.1);opacity:0;transition:opacity .2s;}
+.btn-primary:hover::before{opacity:1;}
+.btn-primary:hover{background:var(--red-deep);box-shadow:0 8px 32px var(--red-glow);transform:translateY(-2px);}
+
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:9px;
+  background:transparent;color:var(--white);
+  font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;
+  letter-spacing:.8px;text-transform:uppercase;
+  border:1px solid var(--line-s);border-radius:7px;padding:15px 28px;cursor:pointer;
+  transition:border-color .2s,background .2s,transform .2s;
+}
+.btn-secondary:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.05);transform:translateY(-2px);}
+
+/* hero visual — SVG illustration */
+.hero-visual{
+  position:relative;
+  animation:heroIn .9s .35s ease both;
+}
+.hero-card{
+  background:var(--dark-3);
+  border:1px solid var(--line-s);
+  border-radius:20px;
+  padding:32px;
+  position:relative;overflow:hidden;
+}
+.hero-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--red),var(--green-lt));
+}
+.pool-visual{display:flex;flex-direction:column;gap:16px;}
+.pool-bar-label{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-weight:600;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.pool-bar-track{height:8px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
+.pool-bar-fill{height:100%;border-radius:99px;animation:barGrow 2s 1s ease both;}
+.pool-bar-fill.r{background:linear-gradient(90deg,var(--red-deep),var(--red));width:72%;}
+.pool-bar-fill.g{background:linear-gradient(90deg,var(--green),var(--green-lt));width:54%;}
+.pool-bar-fill.m{background:linear-gradient(90deg,#7D6E65,#A89A90);width:88%;}
+@keyframes barGrow{from{width:0;}to{}}
+.pool-depositors{
+  display:flex;align-items:center;gap:-8px;margin-top:6px;
+}
+.dep-av{
+  width:34px;height:34px;border-radius:50%;border:2px solid var(--dark-3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.7rem;font-weight:700;color:var(--white);
+  margin-left:-8px;
+}
+.dep-av:first-child{margin-left:0;}
+.dep-av.a{background:var(--red);}
+.dep-av.b{background:var(--green);}
+.dep-av.c{background:#7C5C50;}
+.dep-av.d{background:#4A6741;}
+.dep-av.e{background:var(--red-deep);}
+.dep-count{margin-left:8px;font-size:.78rem;color:var(--muted);}
+.hero-stat-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px;
+}
+.h-stat{
+  background:rgba(255,255,255,.04);border:1px solid var(--line);
+  border-radius:10px;padding:14px 16px;
+}
+.h-stat-val{
+  font-family:'IBM Plex Mono',monospace;font-size:1.3rem;font-weight:500;color:var(--white);
+}
+.h-stat-key{font-size:.66rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+.floating-badge{
+  position:absolute;top:-18px;right:28px;
+  background:var(--green);color:var(--white);
+  font-size:.7rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  border-radius:6px;padding:6px 14px;
+  box-shadow:0 4px 20px var(--green-glow);
+  animation:floatBadge 4s ease-in-out infinite;
+}
+@keyframes floatBadge{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+
+/* hero stats strip */
+.hero-strip{
+  border-top:1px solid var(--line);
+  margin-top:72px;padding-top:48px;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;
+  animation:heroIn .9s .5s ease both;
+}
+.strip-stat{
+  text-align:center;padding:0 20px;
+  border-right:1px solid var(--line);
+}
+.strip-stat:last-child{border-right:none;}
+.strip-val{
+  font-family:'Cormorant Garamond',serif;
+  font-size:2.4rem;font-weight:700;color:var(--white);
+  line-height:1;
+}
+.strip-val span{font-family:'Syne',sans-serif;font-size:1rem;color:var(--red);}
+.strip-key{font-size:.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-top:7px;}
+
+/* ═══════════════════════════════════════
+   HOW IT WORKS
+═══════════════════════════════════════ */
+.how{background:var(--dark-2);}
+.how-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;background:var(--line);
+  border-radius:16px;overflow:hidden;
+  margin-top:56px;
+}
+.how-step{
+  background:var(--dark-2);
+  padding:44px 36px;
+  position:relative;
+  transition:background .3s;
+}
+.how-step:hover{background:var(--dark-3);}
+.step-number{
+  font-family:'Cormorant Garamond',serif;
+  font-size:5rem;font-weight:700;line-height:1;
+  color:rgba(255,255,255,.04);
+  position:absolute;top:20px;right:24px;
+  user-select:none;pointer-events:none;
+}
+.step-icon{
+  width:52px;height:52px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:22px;
+}
+.step-1 .step-icon{background:var(--red-muted);color:var(--red-lt);}
+.step-2 .step-icon{background:var(--green-muted);color:var(--green-lt);}
+.step-3 .step-icon{background:rgba(255,255,255,.06);color:var(--muted);}
+.step-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:700;margin-bottom:12px;}
+.step-body{font-size:.88rem;color:var(--muted);line-height:1.7;}
+
+/* connector arrow between steps */
+.how-step:not(:last-child)::after{
+  content:'→';
+  position:absolute;right:-16px;top:50%;transform:translateY(-50%);
+  font-size:1.4rem;color:var(--line-s);z-index:1;
+}
+
+/* ═══════════════════════════════════════
+   FEATURES
+═══════════════════════════════════════ */
+.features{background:var(--dark);}
+.features-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:18px;margin-top:56px;
+}
+.feat-card{
+  background:var(--dark-3);
+  border:1px solid var(--line);
+  border-radius:14px;padding:32px;
+  position:relative;overflow:hidden;
+  transition:border-color .3s,transform .3s,box-shadow .3s;
+}
+.feat-card:hover{
+  border-color:var(--line-s);
+  transform:translateY(-4px);
+  box-shadow:0 20px 50px rgba(0,0,0,.35);
+}
+.feat-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.03),transparent);
+  pointer-events:none;
+}
+.feat-card.featured{
+  border-color:rgba(192,57,43,.3);
+  background:linear-gradient(135deg,rgba(192,57,43,.06),var(--dark-3));
+}
+.feat-icon{
+  width:46px;height:46px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;
+}
+.feat-red  .feat-icon{background:var(--red-muted);color:var(--red-lt);}
+.feat-green.feat-icon,.feat-green .feat-icon{background:var(--green-muted);color:var(--green-lt);}
+.feat-white .feat-icon{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);}
+.feat-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;margin-bottom:10px;}
+.feat-body{font-size:.84rem;color:var(--muted);line-height:1.65;}
+.feat-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;}
+.feat-pill{
+  font-size:.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:4px 10px;border-radius:4px;
+  background:rgba(255,255,255,.05);color:var(--muted);
+  border:1px solid var(--line);
+}
+.feat-pill.r{background:var(--red-muted);color:var(--red-lt);border-color:rgba(192,57,43,.2);}
+.feat-pill.g{background:var(--green-muted);color:var(--green-lt);border-color:rgba(26,122,69,.2);}
+
+/* ═══════════════════════════════════════
+   TRUST / WHY COMMVAULT
+═══════════════════════════════════════ */
+.trust{background:var(--dark-2);}
+.trust-inner{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:80px;align-items:center;
+}
+.trust-illustration{
+  position:relative;
+}
+.trust-visual-wrap{
+  background:var(--dark-3);
+  border:1px solid var(--line-s);
+  border-radius:20px;
+  padding:36px;
+  position:relative;overflow:hidden;
+}
+.trust-visual-wrap::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--green),var(--green-lt),var(--red));
+}
+/* SVG community illustration inline */
+.community-svg{width:100%;height:auto;display:block;}
+
+.trust-points{display:flex;flex-direction:column;gap:28px;margin-top:36px;}
+.trust-point{
+  display:flex;align-items:flex-start;gap:16px;
+}
+.tp-icon{
+  width:40px;height:40px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:2px;
+}
+.tp-r{background:var(--red-muted);color:var(--red-lt);}
+.tp-g{background:var(--green-muted);color:var(--green-lt);}
+.tp-w{background:rgba(255,255,255,.06);color:rgba(255,255,255,.5);}
+.tp-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;margin-bottom:5px;}
+.tp-body{font-size:.84rem;color:var(--muted);line-height:1.6;}
+
+/* ═══════════════════════════════════════
+   TESTIMONIALS
+═══════════════════════════════════════ */
+.testimonials{background:var(--dark);}
+.testi-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:18px;margin-top:56px;
+}
+.testi-card{
+  background:var(--dark-3);border:1px solid var(--line);
+  border-radius:14px;padding:30px;
+  transition:transform .3s,box-shadow .3s;
+}
+.testi-card:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.3);}
+.testi-quote{
+  font-size:.95rem;color:rgba(255,255,255,.75);
+  line-height:1.7;margin-bottom:24px;
+  font-style:italic;
+}
+.testi-quote::before{content:'\201C';font-family:'Cormorant Garamond',serif;font-size:2.5rem;line-height:.5;vertical-align:-.4em;color:var(--red);margin-right:4px;}
+.testi-author{display:flex;align-items:center;gap:12px;}
+.testi-av{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.8rem;font-weight:700;color:var(--white);flex-shrink:0;
+}
+.testi-name{font-size:.88rem;font-weight:700;color:var(--white);}
+.testi-loc{font-size:.72rem;color:var(--muted);margin-top:2px;}
+.stars{color:var(--red);font-size:.75rem;letter-spacing:2px;margin-bottom:16px;}
+
+/* ═══════════════════════════════════════
+   CTA BAND
+═══════════════════════════════════════ */
+.cta-band{
+  background:linear-gradient(135deg,var(--red-deep) 0%,var(--red) 50%,rgba(192,57,43,.7) 100%);
+  position:relative;overflow:hidden;
+  padding:90px 0;
+}
+.cta-band::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(-45deg,transparent,transparent 28px,rgba(255,255,255,.03) 28px,rgba(255,255,255,.03) 29px);
+}
+.cta-band::after{
+  content:'';position:absolute;
+  width:600px;height:600px;border-radius:50%;
+  background:rgba(255,255,255,.05);
+  top:-200px;right:-150px;filter:blur(60px);
+}
+.cta-inner{
+  position:relative;z-index:1;
+  text-align:center;
+}
+.cta-inner .section-title{font-size:clamp(2rem,4vw,3rem);}
+.cta-inner .section-sub{max-width:540px;margin:0 auto 36px;color:rgba(255,255,255,.65);}
+.cta-actions{display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;}
+.btn-white{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--white);color:var(--red-deep);
+  font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;
+  letter-spacing:.8px;text-transform:uppercase;
+  border:none;border-radius:7px;padding:15px 30px;cursor:pointer;
+  transition:box-shadow .2s,transform .2s;
+}
+.btn-white:hover{box-shadow:0 8px 32px rgba(0,0,0,.2);transform:translateY(-2px);}
+.btn-outline-white{
+  display:inline-flex;align-items:center;gap:9px;
+  background:transparent;color:var(--white);
+  font-family:'Syne',sans-serif;font-size:.85rem;font-weight:600;
+  letter-spacing:.8px;text-transform:uppercase;
+  border:1px solid rgba(255,255,255,.4);border-radius:7px;padding:15px 28px;cursor:pointer;
+  transition:border-color .2s,background .2s,transform .2s;
+}
+.btn-outline-white:hover{border-color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);transform:translateY(-2px);}
+
+/* ═══════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════ */
+footer{background:var(--dark-2);border-top:1px solid var(--line);}
+.footer-main{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:48px;padding:64px 0 48px;
+}
+.footer-brand .nav-wordmark{font-size:1.5rem;margin-bottom:14px;}
+.footer-brand p{font-size:.84rem;color:var(--muted);line-height:1.7;max-width:280px;}
+.footer-col h4{
+  font-size:.68rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:18px;
+}
+.footer-col a{
+  display:block;font-size:.84rem;color:rgba(255,255,255,.5);
+  margin-bottom:12px;transition:color .2s;
+}
+.footer-col a:hover{color:var(--white);}
+.footer-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0;border-top:1px solid var(--line);
+  font-size:.74rem;color:var(--muted);flex-wrap:wrap;gap:12px;
+}
+.footer-badges{display:flex;align-items:center;gap:8px;}
+.fbadge{
+  font-size:.6rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:4px 10px;border-radius:4px;border:1px solid var(--line-s);color:var(--muted);
+}
+.fbadge-r{color:var(--red-lt);border-color:rgba(192,57,43,.3);background:var(--red-muted);}
+.fbadge-g{color:var(--green-lt);border-color:rgba(26,122,69,.3);background:var(--green-muted);}
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media(max-width:900px){
+  .hero-inner{grid-template-columns:1fr;}
+  .hero-strip{grid-template-columns:repeat(2,1fr);}
+  .strip-stat{border-right:none;border-bottom:1px solid var(--line);padding:20px;}
+  .strip-stat:nth-child(2n){border-right:none;}
+  .how-grid,.features-grid,.testi-grid{grid-template-columns:1fr;}
+  .how-step::after{display:none;}
+  .trust-inner{grid-template-columns:1fr;}
+  .footer-main{grid-template-columns:1fr 1fr;}
+  .nav-links{display:none;}
+}
+@media(max-width:540px){
+  .hero-strip{grid-template-columns:1fr 1fr;}
+  .footer-main{grid-template-columns:1fr;}
+  .hero-stat-row{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ╔════════════════════════════════════╗
+     ║  NAV                               ║
+     ╚════════════════════════════════════╝ -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <div class="nav-seal"><div class="nav-seal-ring"></div></div>
+      <div class="nav-wordmark">Comm<em>Vault</em></div>
+    </div>
+    <div class="nav-links">
+      <a href="#how">How It Works</a>
+      <a href="#features">Features</a>
+      <a href="#trust">Why CommVault</a>
+      <a href="#community">Community</a>
+    </div>
+    <a href="backend/app.php" class="nav-cta">
+      Launch DApp
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ╔════════════════════════════════════╗
+     ║  HERO                              ║
+     ╚════════════════════════════════════╝ -->
+<section class="hero section">
+  <div class="hero-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="container">
+    <div class="hero-inner">
+      <!-- Left: copy -->
+      <div>
+        <div class="hero-kicker">
+          <span></span>
+          Built on Cardano · Trustless · Non-custodial
+        </div>
+        <h1 class="hero-h1">
+          Save Together.<br>
+          <span class="accent">Grow</span> Together.<br>
+          <span class="accent-g">Trust</span> the Chain.
+        </h1>
+        <p class="hero-p">
+          CommVault is a decentralised community savings pool built on Cardano. Pool members deposit freely — only the designated treasurer can withdraw — enforced entirely by smart contract, not promises.
+        </p>
+        <div class="hero-actions">
+          <a href="backend/app.php" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Launch DApp
+          </a>
+          <a href="#how" class="btn-secondary">
+            How It Works
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: live pool card -->
+      <div class="hero-visual">
+        <div class="floating-badge">● Live on Preprod</div>
+        <div class="hero-card">
+          <div class="pool-visual">
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+              <div style="font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);">Pool Activity</div>
+              <div style="font-size:.7rem;color:var(--green-lt);font-weight:600;">▲ Active</div>
+            </div>
+
+            <!-- Inline SVG: stacked coins/pool illustration -->
+            <svg viewBox="0 0 320 140" xmlns="http://www.w3.org/2000/svg" style="width:100%;border-radius:10px;background:rgba(255,255,255,.03);margin-bottom:8px;">
+              <!-- pool vessel -->
+              <ellipse cx="160" cy="110" rx="110" ry="18" fill="rgba(192,57,43,.18)" stroke="rgba(192,57,43,.4)" stroke-width="1.5"/>
+              <rect x="50" y="50" width="220" height="60" rx="4" fill="rgba(192,57,43,.08)" stroke="rgba(192,57,43,.2)" stroke-width="1"/>
+              <ellipse cx="160" cy="50" rx="110" ry="18" fill="rgba(192,57,43,.22)" stroke="rgba(192,57,43,.45)" stroke-width="1.5"/>
+              <!-- ADA symbol -->
+              <text x="160" y="86" text-anchor="middle" font-family="serif" font-size="26" fill="rgba(192,57,43,.7)">₳</text>
+              <!-- depositor arrows -->
+              <line x1="40" y1="30" x2="80" y2="48" stroke="rgba(26,122,69,.6)" stroke-width="1.5" stroke-dasharray="4,3"/>
+              <line x1="280" y1="30" x2="240" y2="48" stroke="rgba(26,122,69,.6)" stroke-width="1.5" stroke-dasharray="4,3"/>
+              <line x1="160" y1="10" x2="160" y2="32" stroke="rgba(26,122,69,.6)" stroke-width="1.5" stroke-dasharray="4,3"/>
+              <!-- depositor dots -->
+              <circle cx="40" cy="24" r="10" fill="var(--red)" opacity=".8"/>
+              <circle cx="280" cy="24" r="10" fill="var(--green)" opacity=".8"/>
+              <circle cx="160" cy="8" r="8" fill="#7C5C50" opacity=".8"/>
+              <!-- down arrows -->
+              <polygon points="40,34 37,28 43,28" fill="rgba(26,122,69,.7)"/>
+              <polygon points="280,34 277,28 283,28" fill="rgba(26,122,69,.7)"/>
+              <polygon points="160,33 157,27 163,27" fill="rgba(26,122,69,.7)"/>
+              <!-- treasurer withdrawal arrow -->
+              <line x1="160" y1="110" x2="160" y2="132" stroke="rgba(192,57,43,.7)" stroke-width="2" stroke-dasharray="5,3"/>
+              <text x="160" y="140" text-anchor="middle" font-family="sans-serif" font-size="8" fill="var(--muted)">Treasurer only</text>
+            </svg>
+
+            <!-- progress bars -->
+            <div>
+              <div class="pool-bar-label"><span>Deposits</span><span style="color:var(--green-lt)">72%</span></div>
+              <div class="pool-bar-track"><div class="pool-bar-fill r"></div></div>
+            </div>
+            <div>
+              <div class="pool-bar-label"><span>Members Active</span><span style="color:var(--green-lt)">54%</span></div>
+              <div class="pool-bar-track"><div class="pool-bar-fill g"></div></div>
+            </div>
+
+            <!-- depositor avatars -->
+            <div class="pool-depositors">
+              <div class="dep-av a">AK</div>
+              <div class="dep-av b">OB</div>
+              <div class="dep-av c">KM</div>
+              <div class="dep-av d">EF</div>
+              <div class="dep-av e">JD</div>
+              <span class="dep-count">+12 depositors</span>
+            </div>
+
+            <!-- mini stats -->
+            <div class="hero-stat-row">
+              <div class="h-stat">
+                <div class="h-stat-val">₳ 4,200</div>
+                <div class="h-stat-key">Total Pooled</div>
+              </div>
+              <div class="h-stat">
+                <div class="h-stat-val">17</div>
+                <div class="h-stat-key">Transactions</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- stats strip -->
+    <div class="hero-strip">
+      <div class="strip-stat">
+        <div class="strip-val">100<span>%</span></div>
+        <div class="strip-key">Non-Custodial</div>
+      </div>
+      <div class="strip-stat">
+        <div class="strip-val">0<span>%</span></div>
+        <div class="strip-key">Platform Fees</div>
+      </div>
+      <div class="strip-stat">
+        <div class="strip-val">∞</div>
+        <div class="strip-key">Depositors per Pool</div>
+      </div>
+      <div class="strip-stat">
+        <div class="strip-val">1<span>×</span></div>
+        <div class="strip-key">Treasurer per Pool</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔════════════════════════════════════╗
+     ║  HOW IT WORKS                      ║
+     ╚════════════════════════════════════╝ -->
+<section class="how section" id="how">
+  <div class="container">
+    <div class="reveal">
+      <div class="tag">How It Works</div>
+      <h2 class="section-title">Three simple steps.<br>Infinite community power.</h2>
+      <p class="section-sub">CommVault distils trust into code. No middlemen, no broken promises — just transparent rules enforced on-chain.</p>
+    </div>
+
+    <div class="how-grid">
+      <div class="how-step step-1 reveal reveal-delay-1">
+        <div class="step-number">01</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </div>
+        <div class="step-title">Connect Your Wallet</div>
+        <div class="step-body">Link your Lace or compatible Cardano wallet with a single click. No registration, no email, no KYC — your wallet is your identity.</div>
+      </div>
+      <div class="how-step step-2 reveal reveal-delay-2">
+        <div class="step-number">02</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+        </div>
+        <div class="step-title">Deposit to the Pool</div>
+        <div class="step-body">Any community member can deposit ADA directly into the shared smart contract. Funds are locked transparently on-chain — visible to everyone, controlled by no single person.</div>
+      </div>
+      <div class="how-step step-3 reveal reveal-delay-3">
+        <div class="step-number">03</div>
+        <div class="step-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        </div>
+        <div class="step-title">Treasurer Withdraws</div>
+        <div class="step-body">Only the pre-assigned treasurer wallet can withdraw funds. The Plutus V2 smart contract enforces this cryptographically — no one else can access pool funds, ever.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔════════════════════════════════════╗
+     ║  FEATURES                          ║
+     ╚════════════════════════════════════╝ -->
+<section class="features section" id="features">
+  <div class="container">
+    <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto;">
+      <div class="tag">Features</div>
+      <h2 class="section-title">Everything your community needs</h2>
+      <p class="section-sub" style="margin:0 auto;">Built specifically for group savings — ROSCAs, susus, ajo, tontines — upgraded with the security of blockchain.</p>
+    </div>
+
+    <div class="features-grid" style="margin-top:56px;">
+
+      <div class="feat-card feat-red featured reveal reveal-delay-1">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <div class="feat-title">Treasurer-Controlled Withdrawals</div>
+        <div class="feat-body">A single designated wallet holds withdrawal authority, encoded in the Plutus V2 smart contract as an inline datum. No multi-sig complexity — just clear, enforceable community rules.</div>
+        <div class="feat-pills"><span class="feat-pill r">PlutusV2</span><span class="feat-pill r">Inline Datum</span></div>
+      </div>
+
+      <div class="feat-card feat-green reveal reveal-delay-2">
+        <div class="feat-icon" style="background:var(--green-muted);color:var(--green-lt);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div class="feat-title">Open Multi-Member Deposits</div>
+        <div class="feat-body">Any number of community members can deposit ADA into the shared pool contract. No permission required — just a connected wallet and the desire to save together.</div>
+        <div class="feat-pills"><span class="feat-pill g">Open Access</span><span class="feat-pill g">Multi-User</span></div>
+      </div>
+
+      <div class="feat-card feat-white reveal reveal-delay-3">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div class="feat-title">Fully On-Chain Transparency</div>
+        <div class="feat-body">Every deposit and withdrawal is recorded on the Cardano blockchain. The pool balance is publicly verifiable by anyone — complete financial transparency with no off-chain records needed.</div>
+        <div class="feat-pills"><span class="feat-pill">Immutable</span><span class="feat-pill">Public</span></div>
+      </div>
+
+      <div class="feat-card feat-white reveal reveal-delay-1">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+        <div class="feat-title">Partial Withdrawals Supported</div>
+        <div class="feat-body">The treasurer can withdraw any amount up to the pool balance. Remaining funds stay locked in the contract with the datum preserved — the pool continues without interruption.</div>
+        <div class="feat-pills"><span class="feat-pill">Flexible</span><span class="feat-pill">Non-destructive</span></div>
+      </div>
+
+      <div class="feat-card feat-red reveal reveal-delay-2">
+        <div class="feat-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div class="feat-title">Smart Contract Security</div>
+        <div class="feat-body">The withdrawal logic is enforced by a Plutus V2 validator script. The treasurer's public key hash is embedded in the datum — no one can alter it, and no platform can override it.</div>
+        <div class="feat-pills"><span class="feat-pill r">Trustless</span><span class="feat-pill r">Immutable Logic</span></div>
+      </div>
+
+      <div class="feat-card feat-green reveal reveal-delay-3">
+        <div class="feat-icon" style="background:var(--green-muted);color:var(--green-lt);"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4.03 3 9 3s9-1.34 9-3v-6"/></svg></div>
+        <div class="feat-title">Zero Platform Custody</div>
+        <div class="feat-body">CommVault never holds your funds. The smart contract address is the pool — not a company wallet, not a custodian. Your community's savings are always under on-chain rules, not corporate policies.</div>
+        <div class="feat-pills"><span class="feat-pill g">Non-Custodial</span><span class="feat-pill g">Self-Sovereign</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ╔════════════════════════════════════╗
+     ║  TRUST / WHY COMMVAULT             ║
+     ╚════════════════════════════════════╝ -->
+<section class="trust section" id="trust">
+  <div class="container">
+    <div class="trust-inner">
+
+      <!-- Illustration side -->
+      <div class="trust-illustration reveal">
+        <div class="trust-visual-wrap">
+          <!-- Community SVG illustration -->
+          <svg class="community-svg" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="bgGrad" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="rgba(192,57,43,.12)"/>
+                <stop offset="100%" stop-color="transparent"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="300" fill="url(#bgGrad)" rx="8"/>
+
+            <!-- Central vault -->
+            <rect x="155" y="110" width="90" height="100" rx="6" fill="rgba(192,57,43,.25)" stroke="rgba(192,57,43,.6)" stroke-width="1.5"/>
+            <rect x="165" y="120" width="70" height="10" rx="2" fill="rgba(192,57,43,.4)"/>
+            <circle cx="200" cy="160" r="18" fill="none" stroke="rgba(192,57,43,.7)" stroke-width="2"/>
+            <circle cx="200" cy="160" r="8" fill="rgba(192,57,43,.5)"/>
+            <text x="200" y="200" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="rgba(192,57,43,.8)">VAULT</text>
+
+            <!-- People icons around vault -->
+            <!-- Person 1 - top left -->
+            <circle cx="70" cy="60" r="20" fill="rgba(26,122,69,.3)" stroke="rgba(26,122,69,.6)" stroke-width="1.5"/>
+            <circle cx="70" cy="54" r="8" fill="rgba(26,122,69,.6)"/>
+            <path d="M52 80 Q70 70 88 80" fill="rgba(26,122,69,.4)" stroke="rgba(26,122,69,.5)" stroke-width="1"/>
+            <text x="70" y="57" text-anchor="middle" font-size="9" fill="white" font-weight="bold">AK</text>
+            <!-- Arrow from person 1 to vault -->
+            <path d="M90 70 Q130 100 155 130" fill="none" stroke="rgba(26,122,69,.5)" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+
+            <!-- Person 2 - top right -->
+            <circle cx="330" cy="60" r="20" fill="rgba(26,122,69,.3)" stroke="rgba(26,122,69,.6)" stroke-width="1.5"/>
+            <circle cx="330" cy="54" r="8" fill="rgba(26,122,69,.6)"/>
+            <path d="M312 80 Q330 70 348 80" fill="rgba(26,122,69,.4)" stroke="rgba(26,122,69,.5)" stroke-width="1"/>
+            <text x="330" y="57" text-anchor="middle" font-size="9" fill="white" font-weight="bold">OB</text>
+            <path d="M310 70 Q270 100 245 130" fill="none" stroke="rgba(26,122,69,.5)" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+            <!-- Person 3 - left -->
+            <circle cx="40" cy="180" r="20" fill="rgba(26,122,69,.3)" stroke="rgba(26,122,69,.6)" stroke-width="1.5"/>
+            <circle cx="40" cy="174" r="8" fill="rgba(26,122,69,.6)"/>
+            <text x="40" y="177" text-anchor="middle" font-size="9" fill="white" font-weight="bold">KM</text>
+            <path d="M60 180 Q110 170 155 165" fill="none" stroke="rgba(26,122,69,.5)" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+            <!-- Person 4 - right -->
+            <circle cx="360" cy="180" r="20" fill="rgba(26,122,69,.3)" stroke="rgba(26,122,69,.6)" stroke-width="1.5"/>
+            <circle cx="360" cy="174" r="8" fill="rgba(26,122,69,.6)"/>
+            <text x="360" y="177" text-anchor="middle" font-size="9" fill="white" font-weight="bold">EF</text>
+            <path d="M340 180 Q290 170 245 165" fill="none" stroke="rgba(26,122,69,.5)" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+            <!-- Treasurer person - bottom center -->
+            <circle cx="200" cy="270" r="22" fill="rgba(192,57,43,.3)" stroke="rgba(192,57,43,.7)" stroke-width="2"/>
+            <circle cx="200" cy="263" r="9" fill="rgba(192,57,43,.7)"/>
+            <path d="M180 285 Q200 275 220 285" fill="rgba(192,57,43,.4)" stroke="rgba(192,57,43,.5)" stroke-width="1"/>
+            <text x="200" y="266" text-anchor="middle" font-size="9" fill="white" font-weight="bold">TREAS</text>
+            <!-- Arrow from vault to treasurer -->
+            <path d="M200 210 L200 248" fill="none" stroke="rgba(192,57,43,.7)" stroke-width="2" stroke-dasharray="5,3"/>
+            <polygon points="200,248 196,240 204,240" fill="rgba(192,57,43,.7)"/>
+
+            <!-- Labels -->
+            <text x="70" y="98" text-anchor="middle" font-size="8" fill="rgba(26,122,69,.7)">Depositor</text>
+            <text x="330" y="98" text-anchor="middle" font-size="8" fill="rgba(26,122,69,.7)">Depositor</text>
+            <text x="40" y="215" text-anchor="middle" font-size="8" fill="rgba(26,122,69,.7)">Depositor</text>
+            <text x="360" y="215" text-anchor="middle" font-size="8" fill="rgba(26,122,69,.7)">Depositor</text>
+          </svg>
+
+          <div style="margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="background:rgba(26,122,69,.1);border:1px solid rgba(26,122,69,.2);border-radius:8px;padding:14px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:1rem;font-weight:500;color:var(--green-lt);">Open</div>
+              <div style="font-size:.7rem;color:var(--muted);margin-top:3px;letter-spacing:.5px;">Anyone can deposit</div>
+            </div>
+            <div style="background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.2);border-radius:8px;padding:14px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:1rem;font-weight:500;color:var(--red-lt);">Locked</div>
+              <div style="font-size:.7rem;color:var(--muted);margin-top:3px;letter-spacing:.5px;">Only treasurer withdraws</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copy side -->
+      <div class="reveal reveal-delay-2">
+        <div class="tag tag-green">Why CommVault</div>
+        <h2 class="section-title">Traditional savings culture meets blockchain security</h2>
+        <p class="section-sub">Communities have practised collective savings for generations — ROSCAs, susus, ajo, tontines. CommVault brings these traditions on-chain, replacing social trust with mathematical certainty.</p>
+
+        <div class="trust-points" style="margin-top:36px;">
+          <div class="trust-point">
+            <div class="tp-icon tp-r">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <div class="tp-title">No Trust Required</div>
+              <div class="tp-body">The smart contract enforces the rules. The treasurer cannot take more than designated. Depositors cannot withdraw. The code is the agreement.</div>
+            </div>
+          </div>
+          <div class="trust-point">
+            <div class="tp-icon tp-g">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="tp-title">Instant Settlement</div>
+              <div class="tp-body">All transactions settle directly on the Cardano blockchain in seconds. No waiting, no bank clearance, no remittance delays — funds move at blockchain speed.</div>
+            </div>
+          </div>
+          <div class="trust-point">
+            <div class="tp-icon tp-w">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <div class="tp-title">Complete Auditability</div>
+              <div class="tp-body">Every ADA that enters or leaves the pool is recorded permanently on-chain. Any member — or auditor — can verify the pool's history at any time, forever.</div>
+            </div>
+          </div>
+          <div class="trust-point">
+            <div class="tp-icon tp-g">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </div>
+            <div>
+              <div class="tp-title">Works With Your Wallet</div>
+              <div class="tp-body">CommVault connects to Lace and compatible Cardano wallets. No new accounts, no custody — your keys, your funds, your community.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔════════════════════════════════════╗
+     ║  TESTIMONIALS                      ║
+     ╚════════════════════════════════════╝ -->
+<section class="testimonials section" id="community">
+  <div class="container">
+    <div class="reveal" style="text-align:center;max-width:560px;margin:0 auto;">
+      <div class="tag">Community</div>
+      <h2 class="section-title">What our members say</h2>
+      <p class="section-sub" style="margin:0 auto;">Real people saving together, secured by Cardano.</p>
+    </div>
+
+    <div class="testi-grid" style="margin-top:56px;">
+
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">Our savings group used to rely entirely on the treasurer's word. With CommVault, the smart contract is the word. Nobody questions it — the blockchain doesn't lie.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:var(--red);">AK</div>
+          <div>
+            <div class="testi-name">Amara K.</div>
+            <div class="testi-loc">Lagos, Nigeria</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">I contribute to three community savings pools. CommVault is the only one where I can verify the balance myself in real time. That transparency changes everything.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:var(--green);">OB</div>
+          <div>
+            <div class="testi-name">Obinna B.</div>
+            <div class="testi-loc">Accra, Ghana</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal reveal-delay-3">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">Connecting my Lace wallet took under a minute. No forms, no banks, no friction. Just deposit and watch the pool grow — knowing the rules can never be changed mid-game.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:#7C5C50;">KM</div>
+          <div>
+            <div class="testi-name">Kwame M.</div>
+            <div class="testi-loc">London, UK</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal reveal-delay-1">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">As our group's treasurer I have a greater responsibility now. The contract enforces the rules I agreed to — it protects me as much as it protects everyone else.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:#4A6741;">EF</div>
+          <div>
+            <div class="testi-name">Emeka F.</div>
+            <div class="testi-loc">Toronto, Canada</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal reveal-delay-2">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">The partial withdrawal feature is exactly what our group needed. We can release funds for one member's emergency without dissolving the whole pool. Brilliant design.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:var(--red-deep);">JD</div>
+          <div>
+            <div class="testi-name">Joy D.</div>
+            <div class="testi-loc">Kumasi, Ghana</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testi-card reveal reveal-delay-3">
+        <div class="stars">★★★★★</div>
+        <div class="testi-quote">No platform fee, no hidden charges. Every lovelace we deposit stays in the pool. It's the kind of financial tool our communities have deserved for years.</div>
+        <div class="testi-author">
+          <div class="testi-av" style="background:var(--green-lt);">FA</div>
+          <div>
+            <div class="testi-name">Fatima A.</div>
+            <div class="testi-loc">Dakar, Senegal</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ╔════════════════════════════════════╗
+     ║  CTA BAND                          ║
+     ╚════════════════════════════════════╝ -->
+<section class="cta-band">
+  <div class="container">
+    <div class="cta-inner reveal">
+      <h2 class="section-title">Ready to pool your community?</h2>
+      <p class="section-sub">Connect your wallet, set a treasurer, and start depositing in under two minutes. No accounts. No fees. Just community savings on Cardano.</p>
+      <div class="cta-actions">
+        <a href="backend/app.php" class="btn-white">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Launch DApp Now
+        </a>
+        <a href="#how" class="btn-outline-white">
+          Learn More
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ╔════════════════════════════════════╗
+     ║  FOOTER                            ║
+     ╚════════════════════════════════════╝ -->
+<footer>
+  <div class="container">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <div class="nav-wordmark" style="margin-bottom:14px;">Comm<em style="color:var(--red);font-style:normal;">Vault</em></div>
+        <p>Decentralised community savings pools built on Cardano. Trustless, transparent, and built for real communities.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <a href="#how">How It Works</a>
+        <a href="#features">Features</a>
+        <a href="backend/app.php">Launch DApp</a>
+      </div>
+      <div class="footer-col">
+        <h4>Protocol</h4>
+        <a href="#">Smart Contract</a>
+        <a href="#">Cardano Explorer</a>
+        <a href="#">Blockfrost API</a>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+        <a href="#">Cardano Preprod</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2025 CommVault Protocol. All rights reserved.</div>
+      <div class="footer-badges">
+        <span class="fbadge fbadge-r">PlutusV2</span>
+        <span class="fbadge fbadge-g">Non-Custodial</span>
+        <span class="fbadge">Cardano Preprod</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════
+   SCRIPTS
+═══════════════════════════════════════ -->
+<script>
+/* Nav scroll effect */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 20);
+});
+
+/* Scroll reveal */
+const reveals = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.12 });
+reveals.forEach(el => io.observe(el));
+
+/* Smooth scroll for nav links */
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

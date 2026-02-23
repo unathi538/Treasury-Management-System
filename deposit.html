@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CommVault — Deposit Funds</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--red:#C0392B;--red-deep:#96281B;--red-muted:rgba(192,57,43,0.10);--red-glow:rgba(192,57,43,0.28);--green:#1A7A45;--green-bright:#22A05A;--green-muted:rgba(26,122,69,0.10);--green-glow:rgba(26,122,69,0.28);--white:#FFFFFF;--ivory:#F9F6F1;--parchment:#F2EDE5;--ink:#120E0A;--ink-mid:#3D3530;--ink-soft:#8A7F78;--line:rgba(18,14,10,0.08);--line-strong:rgba(18,14,10,0.15);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Syne',sans-serif;background:var(--ivory);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+
+    .scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .scene::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(-45deg,transparent,transparent 28px,rgba(18,14,10,0.022) 28px,rgba(18,14,10,0.022) 29px);}
+    .wash{position:absolute;border-radius:50%;filter:blur(120px);}
+    .wash-1{width:700px;height:700px;background:radial-gradient(circle,var(--green) 0%,transparent 70%);top:-200px;left:-200px;opacity:.09;animation:breathe 18s ease-in-out infinite alternate;}
+    .wash-2{width:600px;height:600px;background:radial-gradient(circle,var(--red) 0%,transparent 70%);bottom:-150px;right:-150px;opacity:.07;animation:breathe 22s ease-in-out infinite alternate-reverse;}
+    @keyframes breathe{from{transform:scale(1);}to{transform:scale(1.12) translate(20px,15px);}}
+
+    .shell{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:0 28px 100px;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:32px 0 28px;border-bottom:1px solid var(--line-strong);margin-bottom:0;opacity:0;animation:riseIn .7s .05s ease forwards;}
+    .wordmark{display:flex;align-items:center;gap:14px;text-decoration:none;}
+    .wordmark-seal{width:44px;height:44px;background:var(--ink);border-radius:11px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+    .wordmark-seal::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.14) 0%,transparent 60%);}
+    .seal-inner{width:18px;height:18px;border:2.5px solid var(--white);border-radius:50%;position:relative;z-index:1;}
+    .seal-inner::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;background:var(--red);border-radius:50%;}
+    .wordmark-text{font-family:'Cormorant Garamond',serif;font-size:1.65rem;font-weight:700;color:var(--ink);letter-spacing:-.2px;line-height:1;}
+    .wordmark-text em{font-style:normal;color:var(--red);}
+    .wordmark-tagline{font-size:.62rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;}
+    .nav-links{display:flex;align-items:center;gap:28px;}
+    .nav-link{font-size:.8rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-mid);text-decoration:none;transition:color .2s;}
+    .nav-link:hover{color:var(--red);}
+    .nav-link.active{color:var(--green);}
+    .btn-connect{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--white);font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border:none;border-radius:6px;padding:12px 20px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+    .btn-connect::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--red-deep),var(--red));opacity:0;transition:opacity .25s;}
+    .btn-connect:hover::before{opacity:1;}
+    .btn-connect:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--red-glow);}
+    .btn-connect>*{position:relative;z-index:1;}
+    .conn-pip{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:sonar 2.4s infinite;}
+    @keyframes sonar{0%{box-shadow:0 0 0 0 rgba(74,222,128,.7);}70%{box-shadow:0 0 0 7px rgba(74,222,128,0);}100%{box-shadow:0 0 0 0 rgba(74,222,128,0);}}
+
+    /* page header */
+    .page-header{padding:64px 0 48px;border-bottom:1px solid var(--line);margin-bottom:52px;opacity:0;animation:riseIn .7s .12s ease forwards;}
+    .breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+    .breadcrumb a{font-size:.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;transition:color .2s;}
+    .breadcrumb a:hover{color:var(--red);}
+    .breadcrumb-sep{font-size:.7rem;color:var(--line-strong);}
+    .breadcrumb-current{font-size:.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--green);}
+    .page-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.2rem);font-weight:700;color:var(--ink);line-height:1.08;margin-bottom:14px;}
+    .page-subtitle{font-size:.9rem;color:var(--ink-soft);line-height:1.6;max-width:520px;}
+
+    /* grid */
+    .deposit-grid{display:grid;grid-template-columns:1fr 380px;gap:32px;align-items:start;}
+
+    /* main deposit card */
+    .deposit-card{background:var(--white);border:1px solid var(--line-strong);border-radius:20px;overflow:hidden;opacity:0;animation:riseIn .7s .22s ease forwards;position:relative;}
+    .deposit-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--green-bright));}
+    .deposit-card-inner{padding:38px 40px 40px;}
+    .card-row-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;}
+    .card-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--ink);}
+    .secure-badge{display:inline-flex;align-items:center;gap:7px;background:var(--green-muted);border:1px solid rgba(26,122,69,.22);border-radius:99px;padding:5px 12px;font-size:.6rem;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--green);}
+
+    /* input */
+    .field-block{margin-bottom:28px;}
+    .field-label{display:block;font-size:.62rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:10px;}
+    .field-wrap{position:relative;}
+    .field-wrap input{width:100%;background:var(--ivory);border:1.5px solid var(--line-strong);border-radius:10px;padding:18px 70px 18px 20px;font-family:'IBM Plex Mono',monospace;font-size:1.5rem;font-weight:500;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s,background .2s;-moz-appearance:textfield;}
+    .field-wrap input::-webkit-outer-spin-button,.field-wrap input::-webkit-inner-spin-button{-webkit-appearance:none;}
+    .field-wrap input::placeholder{color:var(--ink-soft);opacity:.4;}
+    .field-wrap input:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-glow);background:var(--white);}
+    .field-unit{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft);pointer-events:none;}
+
+    /* fee row */
+    .fee-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-top:1px solid var(--line);}
+    .fee-label{font-size:.78rem;color:var(--ink-soft);}
+    .fee-value{font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:500;color:var(--red);}
+
+    /* submit */
+    .btn-deposit{width:100%;margin-top:24px;border:none;border-radius:10px;padding:17px 20px;font-family:'Syne',sans-serif;font-size:.85rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(135deg,var(--green) 0%,var(--green-bright) 100%);color:var(--white);box-shadow:0 4px 20px var(--green-glow);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+    .btn-deposit::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);opacity:0;transition:opacity .2s;}
+    .btn-deposit:hover::after{opacity:1;}
+    .btn-deposit:hover{transform:translateY(-2px);box-shadow:0 10px 32px var(--green-glow);}
+    .btn-deposit:active{transform:scale(.98);}
+    .btn-arrow{margin-left:auto;transition:transform .2s;}
+    .btn-deposit:hover .btn-arrow{transform:translateX(4px);}
+    .deposit-terms{font-size:.7rem;color:var(--ink-soft);text-align:center;margin-top:14px;line-height:1.5;}
+
+    /* sidebar */
+    .sidebar{display:flex;flex-direction:column;gap:20px;opacity:0;animation:riseIn .7s .34s ease forwards;}
+    .info-card{background:var(--white);border:1px solid var(--line-strong);border-radius:16px;padding:28px;}
+    .info-card-head{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+    .info-card-icon{width:36px;height:36px;border-radius:8px;background:var(--green-muted);color:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .info-card-title{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700;color:var(--ink);}
+    .info-stat-big{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--ink);line-height:1;}
+    .info-stat-big sup{font-size:.8rem;font-family:'Syne',sans-serif;font-weight:600;color:var(--ink-soft);}
+    .info-stat-bar{height:5px;background:var(--parchment);border-radius:99px;margin:10px 0 6px;overflow:hidden;}
+    .info-stat-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green-bright));border-radius:99px;width:82%;transition:width .8s ease;}
+    .info-stat-note{font-size:.72rem;color:var(--ink-soft);}
+    .divider{height:1px;background:var(--line);margin:14px 0;}
+    .info-detail-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;}
+    .info-detail-label{font-size:.72rem;color:var(--ink-soft);}
+    .info-detail-value{font-family:'IBM Plex Mono',monospace;font-size:.75rem;font-weight:500;color:var(--ink);}
+    .info-detail-value.green{color:var(--green);}
+
+    .security-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+    .security-item:last-child{border-bottom:none;}
+    .security-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:5px;}
+    .security-text{font-size:.78rem;color:var(--ink-soft);line-height:1.45;}
+    .log-panel {
+      background: var(--white);
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      overflow: hidden;
+      opacity: 0;
+      animation: riseIn 0.7s 0.45s ease forwards;
+    }
+
+    .log-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 32px;
+      border-bottom: 1px solid var(--line);
+    }
+    .log-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .live-pip {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: var(--green-bright);
+      border-radius: 50%;
+      animation: sonar 2.4s infinite;
+    }
+    .log-network-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      background: var(--parchment);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 4px 10px;
+    }
+
+    /* The actual <pre id="log"> element */
+    #log {
+      display: block;
+      padding: 28px 32px;
+      max-height: 220px;
+      overflow-y: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 400;
+      line-height: 1.9;
+      color: var(--ink-mid);
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+    #log:empty::before {
+      content: 'Awaiting activity — connect your wallet to begin.';
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+    #log::-webkit-scrollbar { width: 4px; }
+    #log::-webkit-scrollbar-track { background: transparent; }
+    #log::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 4px;
+    }
+
+    /* Log line colouring injected by mutation observer */
+    .log-line-deposit  { color: var(--green); }
+    .log-line-withdraw { color: var(--red); }
+    .log-line-error    { color: var(--red-deep); }
+
+    @keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+    @media(max-width:760px){
+      .deposit-grid{grid-template-columns:1fr;}
+      nav .nav-links{display:none;}
+    }
+  </style>
+</head>
+<body>
+<div class="scene">
+  <div class="wash wash-1"></div>
+  <div class="wash wash-2"></div>
+</div>
+
+<div class="shell">
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="wordmark">
+      <div class="wordmark-seal"><div class="seal-inner"></div></div>
+      <div>
+        <div class="wordmark-text">Comm<em>Vault</em></div>
+        <div class="wordmark-tagline">Community Savings Pool</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="/backend/app.php" class="nav-link">Home</a>
+      <a href="withdraw-request.html" class="nav-link">Withdrawal Request</a>
+    </div>
+    <button class="btn-connect" onclick="connectWallet()">
+      <div class="conn-pip"></div>
+      Connect Wallet
+    </button>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">Deposit Funds</span>
+    </div>
+    <h1 class="page-title">Deposit Funds</h1>
+    <p class="page-subtitle">Securely contribute ADA to the collective community savings pool. Funds are locked in an audited Plutus smart contract.</p>
+  </div>
+
+  <!-- GRID -->
+  <div class="deposit-grid">
+
+    <!-- DEPOSIT CARD -->
+    <div class="deposit-card">
+      <div class="deposit-card-inner">
+        <div class="card-row-head">
+          <div class="card-title">Stake ADA</div>
+          <div class="secure-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Secure Transaction
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="depositAmount">Amount to Deposit</label>
+          <div class="field-wrap">
+            <input type="number" id="depositAmount" placeholder="0.00" min="1" step="1"/>
+            <span class="field-unit">ADA</span>
+          </div>
+        </div>
+
+        <div class="fee-row">
+          <span class="fee-label">Network Fee Estimate</span>
+          <span class="fee-value">~0.17 ADA</span>
+        </div>
+
+        <button class="btn-deposit" onclick="deposit()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Confirm Deposit
+          <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="deposit-terms">By confirming, you agree to the CommVault protocol terms. Funds are locked in an audited smart contract.</div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- pool stats -->
+      <div class="info-card">
+        <div class="info-card-head">
+          <div class="info-card-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+          <div class="info-card-title">Pool Overview</div>
+        </div>
+        <div class="info-stat-big" id="poolBalance">—<sup> ADA</sup></div>
+        <div class="info-stat-bar"><div class="info-stat-bar-fill"></div></div>
+        <div class="info-stat-note">Current pool balance · updated live</div>
+        <div class="divider"></div>
+        <div class="info-detail-row">
+          <span class="info-detail-label">Total Deposited</span>
+          <span class="info-detail-value green" id="totalDeposited">—</span>
+        </div>
+        <div class="info-detail-row">
+          <span class="info-detail-label">Total Withdrawn</span>
+          <span class="info-detail-value" id="totalWithdrawn">—</span>
+        </div>
+        <div class="info-detail-row">
+          <span class="info-detail-label">Network</span>
+          <span class="info-detail-value">Cardano Preprod</span>
+        </div>
+      </div>
+
+      <!-- security -->
+      <div class="info-card">
+        <div class="info-card-head">
+          <div class="info-card-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="info-card-title">Security</div>
+        </div>
+        <div class="security-item">
+          <div class="security-dot"></div>
+          <div class="security-text">Non-custodial — only your wallet keys can authorise your transactions</div>
+        </div>
+        <div class="security-item">
+          <div class="security-dot"></div>
+          <div class="security-text">Plutus V2 audited smart contract with on-chain validation</div>
+        </div>
+        <div class="security-item">
+          <div class="security-dot"></div>
+          <div class="security-text">Every deposit is recorded immutably on the Cardano blockchain</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .log-hidden-wrap{position:fixed;bottom:0;left:var(--sidebar-w);right:0;z-index:9000;pointer-events:none;opacity:0;visibility:hidden;}
+</style>
+<div class="log-hidden-wrap">
+  <pre id="log"></pre>
+
+<script src="/assets/js/global-modal.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

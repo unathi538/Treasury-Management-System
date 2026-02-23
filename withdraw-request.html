@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CommVault — Withdrawal Request</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--red:#C0392B;--red-deep:#96281B;--red-muted:rgba(192,57,43,0.10);--red-glow:rgba(192,57,43,0.28);--green:#1A7A45;--green-bright:#22A05A;--green-muted:rgba(26,122,69,0.10);--green-glow:rgba(26,122,69,0.28);--white:#FFFFFF;--ivory:#F9F6F1;--parchment:#F2EDE5;--ink:#120E0A;--ink-mid:#3D3530;--ink-soft:#8A7F78;--line:rgba(18,14,10,0.08);--line-strong:rgba(18,14,10,0.15);}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Syne',sans-serif;background:var(--ivory);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+
+    .scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .scene::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(-45deg,transparent,transparent 28px,rgba(18,14,10,0.022) 28px,rgba(18,14,10,0.022) 29px);}
+    .wash{position:absolute;border-radius:50%;filter:blur(120px);}
+    .wash-1{width:700px;height:700px;background:radial-gradient(circle,var(--red) 0%,transparent 70%);top:-200px;right:-150px;opacity:.09;animation:breathe 18s ease-in-out infinite alternate;}
+    .wash-2{width:600px;height:600px;background:radial-gradient(circle,var(--green) 0%,transparent 70%);bottom:-150px;left:-150px;opacity:.07;animation:breathe 22s ease-in-out infinite alternate-reverse;}
+    @keyframes breathe{from{transform:scale(1);}to{transform:scale(1.12) translate(20px,15px);}}
+
+    .shell{position:relative;z-index:1;max-width:1060px;margin:0 auto;padding:0 28px 100px;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:32px 0 28px;border-bottom:1px solid var(--line-strong);margin-bottom:0;opacity:0;animation:riseIn .7s .05s ease forwards;}
+    .wordmark{display:flex;align-items:center;gap:14px;text-decoration:none;}
+    .wordmark-seal{width:44px;height:44px;background:var(--ink);border-radius:11px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0;}
+    .wordmark-seal::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.14) 0%,transparent 60%);}
+    .seal-inner{width:18px;height:18px;border:2.5px solid var(--white);border-radius:50%;position:relative;z-index:1;}
+    .seal-inner::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;background:var(--red);border-radius:50%;}
+    .wordmark-text{font-family:'Cormorant Garamond',serif;font-size:1.65rem;font-weight:700;color:var(--ink);letter-spacing:-.2px;line-height:1;}
+    .wordmark-text em{font-style:normal;color:var(--red);}
+    .wordmark-tagline{font-size:.62rem;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-soft);margin-top:3px;}
+    .nav-links{display:flex;align-items:center;gap:28px;}
+    .nav-link{font-size:.8rem;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-mid);text-decoration:none;transition:color .2s;}
+    .nav-link:hover{color:var(--red);}
+    .nav-link.active{color:var(--red);}
+    .btn-connect{display:inline-flex;align-items:center;gap:9px;background:var(--ink);color:var(--white);font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border:none;border-radius:6px;padding:12px 20px;cursor:pointer;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+    .btn-connect::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--red-deep),var(--red));opacity:0;transition:opacity .25s;}
+    .btn-connect:hover::before{opacity:1;}
+    .btn-connect:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--red-glow);}
+    .btn-connect>*{position:relative;z-index:1;}
+    .conn-pip{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:sonar 2.4s infinite;}
+    @keyframes sonar{0%{box-shadow:0 0 0 0 rgba(74,222,128,.7);}70%{box-shadow:0 0 0 7px rgba(74,222,128,0);}100%{box-shadow:0 0 0 0 rgba(74,222,128,0);}}
+
+    .page-header{padding:64px 0 48px;border-bottom:1px solid var(--line);margin-bottom:52px;opacity:0;animation:riseIn .7s .12s ease forwards;}
+    .breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:20px;}
+    .breadcrumb a{font-size:.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft);text-decoration:none;transition:color .2s;}
+    .breadcrumb a:hover{color:var(--red);}
+    .breadcrumb-sep{font-size:.7rem;color:var(--line-strong);}
+    .breadcrumb-current{font-size:.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);}
+    .page-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.2rem,4vw,3.2rem);font-weight:700;color:var(--ink);line-height:1.08;margin-bottom:14px;}
+    .page-subtitle{font-size:.9rem;color:var(--ink-soft);line-height:1.6;max-width:520px;}
+
+    .wr-grid{display:grid;grid-template-columns:1fr 360px;gap:32px;align-items:start;}
+
+    /* form card */
+    .form-card{background:var(--white);border:1px solid var(--line-strong);border-radius:20px;overflow:hidden;opacity:0;animation:riseIn .7s .22s ease forwards;position:relative;}
+    .form-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--red-deep),var(--red));}
+    .form-card-inner{padding:38px 40px 40px;}
+    .form-card-head{display:flex;align-items:center;gap:12px;margin-bottom:32px;}
+    .form-icon{width:40px;height:40px;border-radius:9px;background:var(--red-muted);color:var(--red);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .form-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:var(--ink);}
+    .form-desc{font-size:.78rem;color:var(--ink-soft);margin-top:3px;}
+
+    .field-block{margin-bottom:22px;}
+    .field-label{display:block;font-size:.62rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--ink-soft);margin-bottom:9px;}
+    .field-wrap{position:relative;}
+    .field-wrap input,.field-wrap select,.field-wrap textarea{width:100%;background:var(--ivory);border:1.5px solid var(--line-strong);border-radius:9px;padding:14px 18px;font-family:'Syne',sans-serif;font-size:.9rem;font-weight:500;color:var(--ink);outline:none;transition:border-color .2s,box-shadow .2s,background .2s;-moz-appearance:textfield;resize:none;}
+    .field-wrap input::-webkit-outer-spin-button,.field-wrap input::-webkit-inner-spin-button{-webkit-appearance:none;}
+    .field-wrap input::placeholder,.field-wrap textarea::placeholder{color:var(--ink-soft);opacity:.45;}
+    .field-wrap input:focus,.field-wrap select:focus,.field-wrap textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-glow);background:var(--white);}
+    .field-wrap select{appearance:none;cursor:pointer;}
+    .field-wrap select option{font-family:'Syne',sans-serif;}
+    .field-unit-r{position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-soft);pointer-events:none;}
+    .fee-note{font-size:.7rem;color:var(--ink-soft);margin-top:7px;}
+    .field-wrap textarea{min-height:110px;padding-top:14px;}
+
+    /* submit */
+    .form-actions{display:flex;align-items:center;gap:14px;margin-top:28px;}
+    .btn-submit{flex:1;border:none;border-radius:9px;padding:16px 20px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;background:linear-gradient(135deg,var(--green) 0%,var(--green-bright) 100%);color:var(--white);box-shadow:0 4px 20px var(--green-glow);position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s;}
+    .btn-submit::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.12);opacity:0;transition:opacity .2s;}
+    .btn-submit:hover::after{opacity:1;}
+    .btn-submit:hover{transform:translateY(-2px);box-shadow:0 10px 32px var(--green-glow);}
+    .btn-cancel{border:1.5px solid var(--line-strong);border-radius:9px;padding:15px 20px;font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;background:transparent;color:var(--ink-soft);transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;}
+    .btn-cancel:hover{border-color:var(--red);color:var(--red);}
+
+    /* sidebar */
+    .sidebar{display:flex;flex-direction:column;gap:20px;opacity:0;animation:riseIn .7s .34s ease forwards;}
+
+    /* pool balance card */
+    .balance-card{background:var(--ink);border-radius:16px;padding:28px;position:relative;overflow:hidden;}
+    .balance-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(192,57,43,.2) 0%,transparent 60%);}
+    .balance-card-eyebrow{font-size:.6rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:8px;position:relative;}
+    .balance-card-fig{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--white);line-height:1;position:relative;}
+    .balance-card-fig sup{font-size:.9rem;font-family:'Syne',sans-serif;font-weight:600;color:rgba(255,255,255,.45);margin-left:4px;}
+    .balance-card-trend{font-size:.72rem;color:rgba(255,255,255,.4);margin-top:6px;position:relative;}
+    .balance-card-trend strong{color:var(--green-bright);}
+
+    /* recent withdrawals */
+    .rw-card{background:var(--white);border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;}
+    .rw-head{display:flex;align-items:center;gap:9px;padding:20px 24px 16px;border-bottom:1px solid var(--line);}
+    .rw-icon{width:30px;height:30px;border-radius:7px;background:var(--green-muted);color:var(--green);display:flex;align-items:center;justify-content:center;}
+    .rw-title{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-weight:700;color:var(--ink);}
+    .rw-list{padding:6px 0;}
+    .rw-item{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:13px 24px;border-bottom:1px solid var(--line);transition:background .18s;}
+    .rw-item:last-child{border-bottom:none;}
+    .rw-item:hover{background:var(--parchment);}
+    .rw-item-left{}
+    .rw-item-name{font-size:.82rem;font-weight:600;color:var(--ink);margin-bottom:3px;}
+    .rw-item-date{font-size:.68rem;color:var(--ink-soft);}
+    .rw-item-right{text-align:right;flex-shrink:0;}
+    .rw-item-amount{font-family:'IBM Plex Mono',monospace;font-size:.82rem;font-weight:500;color:var(--green);margin-bottom:3px;}
+    .rw-item-badge{display:inline-block;font-size:.58rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:var(--green-muted);color:var(--green);border:1px solid rgba(26,122,69,.2);}
+    .rw-footer{padding:12px 24px;border-top:1px solid var(--line);}
+    .rw-footer a{font-size:.72rem;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--green);text-decoration:none;transition:color .2s;}
+    .rw-footer a:hover{color:var(--green-bright);}
+
+    /* governance notice */
+    .gov-notice{background:var(--white);border:1px solid var(--line-strong);border-left:3px solid var(--red);border-radius:10px;padding:18px 20px;display:flex;align-items:flex-start;gap:12px;}
+    .gov-notice-icon{color:var(--red);flex-shrink:0;margin-top:1px;}
+    .gov-notice-title{font-size:.78rem;font-weight:700;color:var(--ink);margin-bottom:4px;}
+    .gov-notice-body{font-size:.73rem;color:var(--ink-soft);line-height:1.5;}
+
+    .rw-loading{display:flex;align-items:center;gap:10px;padding:20px 24px;}
+    .rw-loading-dot{width:8px;height:8px;border-radius:50%;background:var(--green-bright);animation:sonar 2.4s infinite;flex-shrink:0;}
+    .rw-loading-text{font-size:.78rem;color:var(--ink-soft);font-style:italic;}
+    .rw-empty{padding:20px 24px;font-size:.78rem;color:var(--ink-soft);font-style:italic;}
+
+    .log-panel {
+      background: var(--white);
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      overflow: hidden;
+      opacity: 0;
+      animation: riseIn 0.7s 0.45s ease forwards;
+    }
+
+    .log-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 32px;
+      border-bottom: 1px solid var(--line);
+    }
+    .log-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .live-pip {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: var(--green-bright);
+      border-radius: 50%;
+      animation: sonar 2.4s infinite;
+    }
+    .log-network-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      background: var(--parchment);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 4px 10px;
+    }
+
+    /* The actual <pre id="log"> element */
+    #log {
+      display: block;
+      padding: 28px 32px;
+      max-height: 220px;
+      overflow-y: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 400;
+      line-height: 1.9;
+      color: var(--ink-mid);
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+    #log:empty::before {
+      content: 'Awaiting activity — connect your wallet to begin.';
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+    #log::-webkit-scrollbar { width: 4px; }
+    #log::-webkit-scrollbar-track { background: transparent; }
+    #log::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 4px;
+    }
+
+    /* Log line colouring injected by mutation observer */
+    .log-line-deposit  { color: var(--green); }
+    .log-line-withdraw { color: var(--red); }
+    .log-line-error    { color: var(--red-deep); }
+
+    @keyframes riseIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+
+    @media(max-width:760px){
+      .wr-grid{grid-template-columns:1fr;}
+      nav .nav-links{display:none;}
+    }
+  </style>
+</head>
+<body>
+<div class="scene">
+  <div class="wash wash-1"></div>
+  <div class="wash wash-2"></div>
+</div>
+
+<div class="shell">
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="wordmark">
+      <div class="wordmark-seal"><div class="seal-inner"></div></div>
+      <div>
+        <div class="wordmark-text">Comm<em>Vault</em></div>
+        <div class="wordmark-tagline">Community Savings Pool</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="deposit.html" class="nav-link">Deposit</a>
+    </div>
+    <button class="btn-connect" onclick="connectWallet()">
+      <div class="conn-pip"></div>
+      Connect Wallet
+    </button>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="index.html">Home</a>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">Withdrawal Request</span>
+    </div>
+    <h1 class="page-title">Withdrawal Request</h1>
+    <p class="page-subtitle">Create a proposal for community funds allocation. All requests are logged on-chain and subject to governance approval.</p>
+  </div>
+
+  <!-- GRID -->
+  <div class="wr-grid">
+
+    <!-- FORM CARD -->
+    <div class="form-card">
+      <div class="form-card-inner">
+        <div class="form-card-head">
+          <div class="form-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div>
+            <div class="form-title">Request Details</div>
+            <div class="form-desc">All fields are required for submission</div>
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="fullName">Full Name</label>
+          <div class="field-wrap">
+            <input type="text" id="fullName" placeholder="Enter your full name"/>
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="withdrawAmount">Withdrawal Amount (ADA)</label>
+          <div class="field-wrap">
+            <input type="number" id="withdrawAmount" placeholder="0.00" min="1" step="1"/>
+            <span class="field-unit-r">ADA</span>
+          </div>
+          <div class="fee-note">Transaction fees will be calculated upon submission.</div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="recipientAddress">Recipient Address</label>
+          <div class="field-wrap">
+            <input type="text" id="recipientAddress" placeholder="addr1..."/>
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="purposeCategory">Purpose Category</label>
+          <div class="field-wrap">
+            <select id="purposeCategory">
+              <option value="" disabled selected>Select a category</option>
+              <option value="infrastructure">Infrastructure</option>
+              <option value="marketing">Marketing</option>
+              <option value="operations">Operations</option>
+              <option value="emergency">Emergency</option>
+              <option value="development">Development</option>
+              <option value="community">Community Initiative</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label class="field-label" for="justification">Detailed Justification</label>
+          <div class="field-wrap">
+            <textarea id="justification" placeholder="Describe why these funds are needed and how they will be used..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-submit" onclick="submitWithdrawRequest()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Submit Request for Approval
+          </button>
+          <a href="index.html" class="btn-cancel">Cancel</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- pool balance live -->
+      <div class="balance-card">
+        <div class="balance-card-eyebrow">Current Total Pool Balance</div>
+        <div class="balance-card-fig" id="poolBalance">—<sup>ADA</sup></div>
+        <div class="balance-card-trend" id="wrPoolTrend">Fetching live data…</div>
+      </div>
+
+      <!-- recent approved -->
+      <div class="rw-card">
+        <div class="rw-head">
+          <div class="rw-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </div>
+          <div class="rw-title">Recent Approved Withdrawals</div>
+        </div>
+        <div class="rw-list" id="wrRecentList">
+          <div class="rw-loading">
+            <span class="rw-loading-dot"></span>
+            <span class="rw-loading-text">Loading recent withdrawals…</span>
+          </div>
+        </div>
+        <div class="rw-footer"><a href="wallet-transactions.html">View All Transactions →</a></div>
+      </div>
+
+      <!-- governance rule -->
+      <div class="gov-notice">
+        <div class="gov-notice-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+          <div class="gov-notice-title">Governance Rule</div>
+          <div class="gov-notice-body">Requests over 5,000 ADA require a secondary approval from the Council of Validators and a 48-hour cooling period.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .log-hidden-wrap{position:fixed;bottom:0;left:var(--sidebar-w);right:0;z-index:9000;pointer-events:none;opacity:0;visibility:hidden;}
+</style>
+<div class="log-hidden-wrap">
+  <pre id="log"></pre>
+
+<script>
+  const POOL_ID = 'main';
+
+  function fmtAda(n) {
+    const num = Number(n || 0);
+    return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function shortAddr(a) {
+    if (!a) return '—';
+    if (a.length <= 22) return a;
+    return a.slice(0, 10) + '…' + a.slice(-8);
+  }
+
+  async function loadRecentApprovedWithdrawals() {
+    const list = document.getElementById('wrRecentList');
+    if (!list) return;
+
+    try {
+      const res = await fetch(`/backend/api/withdrawals/recent.php?pool_id=${encodeURIComponent(POOL_ID)}&limit=5`, {
+        cache: 'no-store'
+      });
+
+      const text = await res.text();
+      let out;
+      try { out = JSON.parse(text); }
+      catch { throw new Error('Bad JSON: ' + text.slice(0, 200)); }
+
+      if (!out.ok) throw new Error(out.error || 'Failed to load withdrawals');
+
+      const items = Array.isArray(out.items) ? out.items : [];
+      if (items.length === 0) {
+        list.innerHTML = `<div class="rw-empty">No approved withdrawals yet.</div>`;
+        return;
+      }
+
+      list.innerHTML = items.map(w => {
+        const name = w.fullName || '—';
+        const amount = fmtAda(w.amountAda ?? w.amount_ada ?? w.amount ?? 0);
+        const date = (w.createdAt || w.created_at || '').toString().replace('T',' ').slice(0, 16) || '—';
+        const addr = shortAddr(w.recipientAddress || w.recipient_address);
+
+        return `
+          <div class="rw-item">
+            <div class="rw-item-left">
+              <div class="rw-item-name">${escapeHtml(name)}</div>
+              <div class="rw-item-date">${escapeHtml(date)} · ${escapeHtml(addr)}</div>
+            </div>
+            <div class="rw-item-right">
+              <div class="rw-item-amount">${amount} ADA</div>
+              <span class="rw-item-badge">Approved</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (e) {
+      console.error('Recent withdrawals load failed:', e);
+      list.innerHTML = `<div class="rw-empty">Could not load recent withdrawals.</div>`;
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadRecentApprovedWithdrawals();
+  });
+</script>
+
+<script src="/assets/js/global-modal.js"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

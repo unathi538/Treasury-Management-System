@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CommVault — Community Savings Pool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ─────────────────────────────────────────
+       TOKENS
+    ───────────────────────────────────────── */
+    :root {
+      --red:          #C0392B;
+      --red-deep:     #96281B;
+      --red-muted:    rgba(192,57,43,0.12);
+      --red-glow:     rgba(192,57,43,0.28);
+      --green:        #1A7A45;
+      --green-bright: #22A05A;
+      --green-muted:  rgba(26,122,69,0.12);
+      --green-glow:   rgba(26,122,69,0.28);
+      --white:        #FFFFFF;
+      --ivory:        #F9F6F1;
+      --parchment:    #F2EDE5;
+      --ink:          #120E0A;
+      --ink-mid:      #3D3530;
+      --ink-soft:     #8A7F78;
+      --line:         rgba(18,14,10,0.09);
+      --line-strong:  rgba(18,14,10,0.16);
+    }
+
+    /* ─────────────────────────────────────────
+       RESET + BASE
+    ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--ivory);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ─────────────────────────────────────────
+       ANIMATED BACKGROUND
+    ───────────────────────────────────────── */
+    .scene {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; overflow: hidden;
+    }
+
+    /* Fine diagonal line texture */
+    .scene::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 28px,
+        rgba(18,14,10,0.025) 28px,
+        rgba(18,14,10,0.025) 29px
+      );
+    }
+
+    /* Slow colour washes */
+    .wash {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+    }
+    .wash-1 {
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, var(--red) 0%, transparent 70%);
+      top: -200px; left: -200px;
+      opacity: 0.10;
+      animation: breathe 18s ease-in-out infinite alternate;
+    }
+    .wash-2 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, var(--green) 0%, transparent 70%);
+      bottom: -150px; right: -150px;
+      opacity: 0.10;
+      animation: breathe 22s ease-in-out infinite alternate-reverse;
+    }
+    .wash-3 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, var(--red-deep) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      opacity: 0.06;
+      animation: breathe 14s ease-in-out infinite alternate;
+      animation-delay: -7s;
+    }
+    @keyframes breathe {
+      from { transform: scale(1) translate(0,0); }
+      to   { transform: scale(1.15) translate(30px, 20px); }
+    }
+
+    /* ─────────────────────────────────────────
+       LAYOUT
+    ───────────────────────────────────────── */
+    .shell {
+      position: relative; z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 28px 96px;
+    }
+
+    /* ─────────────────────────────────────────
+       TOP BAR
+    ───────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 36px 0 30px;
+      border-bottom: 1px solid var(--line-strong);
+      margin-bottom: 60px;
+      opacity: 0;
+      animation: riseIn 0.7s 0.05s ease forwards;
+    }
+
+    /* Wordmark */
+    .wordmark {
+      display: flex; align-items: center; gap: 14px;
+    }
+    .wordmark-seal {
+      width: 46px; height: 46px;
+      background: var(--ink);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .wordmark-seal::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.14) 0%, transparent 60%);
+    }
+    .seal-inner {
+      width: 20px; height: 20px;
+      border: 2.5px solid var(--white);
+      border-radius: 50%;
+      position: relative; z-index: 1;
+    }
+    .seal-inner::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 7px; height: 7px;
+      background: var(--red);
+      border-radius: 50%;
+    }
+    .wordmark-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .wordmark-text em {
+      font-style: normal;
+      color: var(--red);
+    }
+    .wordmark-tagline {
+      font-size: 0.67rem;
+      font-weight: 500;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-top: 4px;
+    }
+
+    /* Connect button */
+    .btn-connect {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: var(--ink);
+      color: var(--white);
+      font-family: 'Syne', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 6px;
+      padding: 13px 22px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-connect::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--red-deep), var(--red));
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .btn-connect:hover::before { opacity: 1; }
+    .btn-connect:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px var(--red-glow);
+    }
+    .btn-connect:active { transform: translateY(0); }
+    .btn-connect > * { position: relative; z-index: 1; }
+    .conn-pip {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #4ADE80;
+      box-shadow: 0 0 0 0 rgba(74,222,128,0.7);
+      animation: sonar 2.4s infinite;
+    }
+    @keyframes sonar {
+      0%   { box-shadow: 0 0 0 0 rgba(74,222,128,0.7); }
+      70%  { box-shadow: 0 0 0 7px rgba(74,222,128,0); }
+      100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+    }
+
+    /* ─────────────────────────────────────────
+       METRIC STRIP
+    ───────────────────────────────────────── */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 48px;
+      background: var(--white);
+      opacity: 0;
+      animation: riseIn 0.7s 0.15s ease forwards;
+    }
+    .metric {
+      padding: 30px 32px;
+      position: relative;
+      border-right: 1px solid var(--line);
+      transition: background 0.2s;
+    }
+    .metric:last-child { border-right: none; }
+    .metric:hover { background: var(--parchment); }
+    .metric::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 32px; right: 32px;
+      height: 2px;
+      border-radius: 99px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .metric:hover::before { opacity: 1; }
+    .metric-pool::before    { background: var(--red); }
+    .metric-members::before { background: var(--green); }
+    .metric-target::before  { background: var(--ink-mid); }
+
+    .metric-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 10px;
+    }
+    .metric-figure {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .metric-figure sup {
+      font-size: 1rem;
+      vertical-align: super;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      margin-top: 7px;
+      font-weight: 400;
+    }
+
+    /* ─────────────────────────────────────────
+       MAIN ACTION GRID
+    ───────────────────────────────────────── */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    /* ─────────────────────────────────────────
+       PANEL (shared card style)
+    ───────────────────────────────────────── */
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      padding: 38px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      opacity: 0;
+    }
+    .panel:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 24px 56px rgba(18,14,10,0.07);
+    }
+
+    /* Ruled corner ornament */
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 60px; height: 60px;
+      border-bottom-left-radius: 60px;
+      opacity: 0.06;
+    }
+    .panel-deposit  { animation: riseIn 0.7s 0.25s ease forwards; }
+    .panel-withdraw { animation: riseIn 0.7s 0.35s ease forwards; }
+
+    .panel-deposit::before  { background: var(--green); }
+    .panel-withdraw::before { background: var(--red); }
+
+    /* Colour strip on left edge */
+    .panel::after {
+      content: '';
+      position: absolute;
+      top: 24px; bottom: 24px; left: 0;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+    }
+    .panel-deposit::after  { background: linear-gradient(180deg, var(--green), var(--green-bright)); }
+    .panel-withdraw::after { background: linear-gradient(180deg, var(--red-deep), var(--red)); }
+
+    /* Panel header */
+    .panel-head {
+      display: flex; align-items: flex-start; gap: 16px;
+      margin-bottom: 32px;
+    }
+    .panel-icon {
+      width: 46px; height: 46px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .panel-deposit  .panel-icon { background: var(--green-muted); color: var(--green); }
+    .panel-withdraw .panel-icon { background: var(--red-muted);   color: var(--red); }
+    .panel-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--ink);
+    }
+    .panel-desc {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      margin-top: 4px;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    /* Treasurer notice */
+    .treasurer-notice {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: var(--red-muted);
+      border: 1px solid rgba(192,57,43,0.18);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 24px;
+      font-size: 0.775rem;
+      color: var(--red-deep);
+      font-weight: 500;
+      line-height: 1.45;
+    }
+    .treasurer-notice svg { flex-shrink: 0; margin-top: 1px; }
+
+    /* Input */
+    .field-label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin-bottom: 9px;
+    }
+    .field-wrap {
+      position: relative;
+    }
+    .field-wrap input {
+      width: 100%;
+      background: var(--ivory);
+      border: 1.5px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 15px 60px 15px 18px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      -moz-appearance: textfield;
+    }
+    .field-wrap input::-webkit-outer-spin-button,
+    .field-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .field-wrap input::placeholder { color: var(--ink-soft); opacity: 0.5; }
+
+    .panel-deposit  .field-wrap input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px var(--green-glow);
+      background: var(--white);
+    }
+    .panel-withdraw .field-wrap input:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px var(--red-glow);
+      background: var(--white);
+    }
+
+    .field-unit {
+      position: absolute;
+      right: 16px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      pointer-events: none;
+    }
+
+    /* Action buttons */
+    .btn-action {
+      width: 100%;
+      margin-top: 18px;
+      border: none;
+      border-radius: 8px;
+      padding: 15px 20px;
+      font-family: 'Syne', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-action::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.12);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .btn-action:hover::after { opacity: 1; }
+    .btn-action:hover { transform: translateY(-2px); }
+    .btn-action:active { transform: scale(0.98); }
+
+    .btn-green {
+      background: linear-gradient(135deg, var(--green) 0%, var(--green-bright) 100%);
+      color: var(--white);
+      box-shadow: 0 4px 18px var(--green-glow);
+    }
+    .btn-green:hover { box-shadow: 0 8px 30px var(--green-glow); }
+
+    .btn-red {
+      background: linear-gradient(135deg, var(--red-deep) 0%, var(--red) 100%);
+      color: var(--white);
+      box-shadow: 0 4px 18px var(--red-glow);
+    }
+    .btn-red:hover { box-shadow: 0 8px 30px var(--red-glow); }
+
+    .btn-arrow {
+      margin-left: auto;
+      transition: transform 0.2s;
+    }
+    .btn-action:hover .btn-arrow { transform: translateX(4px); }
+
+    /* ─────────────────────────────────────────
+       ACTIVITY LOG
+    ───────────────────────────────────────── */
+    .log-panel {
+      background: var(--white);
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      overflow: hidden;
+      opacity: 0;
+      animation: riseIn 0.7s 0.45s ease forwards;
+    }
+
+    .log-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 32px;
+      border-bottom: 1px solid var(--line);
+    }
+    .log-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .live-pip {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: var(--green-bright);
+      border-radius: 50%;
+      animation: sonar 2.4s infinite;
+    }
+    .log-network-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      background: var(--parchment);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      padding: 4px 10px;
+    }
+
+    /* The actual <pre id="log"> element */
+    #log {
+      display: block;
+      padding: 28px 32px;
+      max-height: 220px;
+      overflow-y: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 400;
+      line-height: 1.9;
+      color: var(--ink-mid);
+      white-space: pre-wrap;
+      word-break: break-all;
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+    #log:empty::before {
+      content: 'Awaiting activity — connect your wallet to begin.';
+      color: var(--ink-soft);
+      font-style: italic;
+    }
+    #log::-webkit-scrollbar { width: 4px; }
+    #log::-webkit-scrollbar-track { background: transparent; }
+    #log::-webkit-scrollbar-thumb {
+      background: var(--line-strong);
+      border-radius: 4px;
+    }
+
+    /* Log line colouring injected by mutation observer */
+    .log-line-deposit  { color: var(--green); }
+    .log-line-withdraw { color: var(--red); }
+    .log-line-error    { color: var(--red-deep); }
+
+    /* ─────────────────────────────────────────
+       FOOTER
+    ───────────────────────────────────────── */
+    .footer {
+      margin-top: 48px;
+      padding-top: 28px;
+      border-top: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      opacity: 0;
+      animation: riseIn 0.7s 0.55s ease forwards;
+    }
+    .footer-left {
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+    .footer-left strong { color: var(--red); font-weight: 600; }
+    .footer-badges {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .badge {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--line-strong);
+      color: var(--ink-soft);
+    }
+    .badge-red   { color: var(--red);   border-color: rgba(192,57,43,0.3); background: var(--red-muted); }
+    .badge-green { color: var(--green); border-color: rgba(26,122,69,0.3); background: var(--green-muted); }
+
+    /* ─────────────────────────────────────────
+       ENTRANCE ANIMATION
+    ───────────────────────────────────────── */
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────── */
+    @media (max-width: 660px) {
+      .action-grid { grid-template-columns: 1fr; }
+      .metrics     { grid-template-columns: 1fr; }
+      .metric      { border-right: none; border-bottom: 1px solid var(--line); }
+      .metric:last-child { border-bottom: none; }
+      .topbar      { flex-direction: column; align-items: flex-start; gap: 18px; }
+      .panel       { padding: 28px 24px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background scene -->
+  <div class="scene">
+    <div class="wash wash-1"></div>
+    <div class="wash wash-2"></div>
+    <div class="wash wash-3"></div>
+  </div>
+
+  <div class="shell">
+
+    <!-- ── TOP BAR ── -->
+    <header class="topbar">
+      <div class="wordmark">
+        <div class="wordmark-seal"><div class="seal-inner"></div></div>
+        <div>
+          <div class="wordmark-text">Comm<em>Vault</em></div>
+          <div class="wordmark-tagline">Community Savings Pool</div>
+        </div>
+      </div>
+
+      <button class="btn-connect" onclick="connectWallet()">
+        <div class="conn-pip"></div>
+        Connect Wallet
+      </button>
+    </header>
+
+    <!-- ── METRIC STRIP ── --
+    <div class="metrics">
+      <div class="metric metric-pool">
+        <div class="metric-eyebrow">Pool Balance</div>
+        <div class="metric-figure">— <sup>ADA</sup></div>
+        <div class="metric-sub">Total locked in contract</div>
+      </div>
+      <div class="metric metric-members">
+        <div class="metric-eyebrow">Network</div>
+        <div class="metric-figure">Preprod</div>
+        <div class="metric-sub">Cardano testnet</div>
+      </div>
+      <div class="metric metric-target">
+        <div class="metric-eyebrow">Protocol</div>
+        <div class="metric-figure">Plutus <sup>V2</sup></div>
+        <div class="metric-sub">Non-custodial smart contract</div>
+      </div>
+    </div>-->
+
+    <!-- ── ACTION CARDS ── -->
+    <div class="action-grid">
+
+      <!-- DEPOSIT -->
+      <div class="panel panel-deposit">
+        <div class="panel-head">
+          <div class="panel-icon">
+            <!-- Down arrow = depositing into pool -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="4" x2="12" y2="20"/>
+              <polyline points="18 14 12 20 6 14"/>
+            </svg>
+          </div>
+          <div>
+            <div class="panel-title">Deposit Funds</div>
+            <div class="panel-desc">Contribute ADA into the<br>shared community pool</div>
+          </div>
+        </div>
+
+        <label class="field-label" for="depositAmount">Amount (ADA)</label>
+        <div class="field-wrap">
+          <input
+            type="number"
+            id="depositAmount"
+            placeholder="0"
+            min="1"
+            step="1"
+          />
+          <span class="field-unit">₳ ADA</span>
+        </div>
+
+        <button class="btn-action btn-green" onclick="deposit()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="4" x2="12" y2="20"/>
+            <polyline points="18 14 12 20 6 14"/>
+          </svg>
+          Deposit to Pool
+          <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- WITHDRAW -->
+      <div class="panel panel-withdraw">
+        <div class="panel-head">
+          <div class="panel-icon">
+            <!-- Up arrow = withdrawing from pool -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div>
+            <div class="panel-title">Treasurer Withdrawal</div>
+            <div class="panel-desc">Authorised access only —<br>treasurer wallet required</div>
+          </div>
+        </div>
+
+        <div class="treasurer-notice">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.3"
+               stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Only the designated treasurer's signing key may authorise withdrawals from this pool.
+        </div>
+
+        <label class="field-label" for="withdrawAmount">Amount (ADA)</label>
+        <div class="field-wrap">
+          <input
+            type="number"
+            id="withdrawAmount"
+            placeholder="0"
+            min="1"
+            step="1"
+          />
+          <span class="field-unit">₳ ADA</span>
+        </div>
+
+        <button class="btn-action btn-red" onclick="withdraw()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          Withdraw Funds
+          <svg class="btn-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+
+    </div><!-- /action-grid -->
+
+    <!-- ── ACTIVITY LOG ── -->
+    <div class="log-panel">
+      <div class="log-topbar">
+        <div class="log-heading">
+          <span class="live-pip"></span>
+          Activity Log
+        </div>
+        <span class="log-network-tag">Cardano Preprod</span>
+      </div>
+      <!-- ID "log" preserved exactly as app.js expects -->
+      <pre id="log"></pre>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <footer class="footer">
+      <div class="footer-left">
+        Powered by <strong>Cardano</strong> &amp; Lucid · CommVault Protocol
+      </div>
+      <div class="footer-badges">
+        <span class="badge badge-red">PlutusV2</span>
+        <span class="badge badge-green">Non-Custodial</span>
+        <span class="badge">Trustless</span>
+      </div>
+    </footer>
+
+  </div><!-- /shell -->
+
+  <!-- app.js loaded as module — all logic untouched -->
+  <script type="module" src="app.js"></script>
+
+</body>
+</html>
